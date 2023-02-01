@@ -1,11 +1,9 @@
-{
-  "name": "transaction-js",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
+{ "name": "transaction-js", "version": "1.0.0", "description": "", "main": "index.js", "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "dependencies":{
+  "agama-wallet-lib": "git+https://github.com/VerusCoin/agama-wallet-lib.git#dev"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/The-New-Fork/transaction-js.git"
