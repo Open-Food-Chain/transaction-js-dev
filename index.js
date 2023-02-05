@@ -36,8 +36,8 @@ axios.get('http://blockchain-explorer.staging.juicychain.org/insight-api-komodo/
 	var utxo = [res.data[0]]
 	utxo[0]['value'] = utxo[0]['satoshis']
 	console.log(utxo)
-	const changeValue = 200000000000
 	const spendValue = 1
+	const changeValue = utxo[0]['value'] - spendValue
 	var options;
 
 	console.log(network)
