@@ -1,4 +1,6 @@
 const txlib = require('agama-wallet-lib');
+const http = require('node:http');
+const axios = require('axios');
 
 const sendTo = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
 const changeAddress = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
@@ -7,6 +9,31 @@ const networks = txlib.btcnetworks
 var network = networks.kmd
 //version is not good in the lib atm, manual override to get rid of warining
 //network.wif = 188
+
+/*const postData = JSON.stringify({
+  'msg': 'Hello World!',
+});
+
+const options1 = {
+  hostname: 'blockchain-explorer.staging.juicychain.org',
+  port: 443,
+  path: '/insight-api-komodo/addrs/RWw3NDp2CJumPCRj9fm6HovJNeFJi9eLyy/utxo',
+  method: 'GET',
+};
+
+const req = http.get(options1, (res) => {
+  console.log(`STATUS: ${res.statusCode}`);
+  console.log(res)
+});
+req.end()
+*/
+
+axios.get('http://blockchain-explorer.staging.juicychain.org/insight-api-komodo/addrs/RWw3NDp2CJumPCRj9fm6HovJNeFJi9eLyy/utxo')
+  .then(res => { console.log(res.data) })
+  .catch(err => {
+    console.log('Error: ', err.message);
+  });
+
 
 var utxo = [{
     "address": "RVaH1r1i2dos15SzD6MBVp8KNEcKTnrn7u",

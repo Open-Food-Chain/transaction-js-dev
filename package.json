@@ -1,17 +1,1 @@
-{ "name": "transaction-js", "version": "1.0.0", "description": "", "main": "index.js", "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "dependencies":{
-  "agama-wallet-lib": "git+https://github.com/VerusCoin/agama-wallet-lib.git#dev"
-},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/The-New-Fork/transaction-js.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/The-New-Fork/transaction-js/issues"
-  },
-  "homepage": "https://github.com/The-New-Fork/transaction-js#readme"
-}
+{"name":"transaction-js","version":"1.0.0","description":"","main":"index.js","scripts":{"test":"echo \"Error: no test specified\" && exit 1"},"dependencies":{"agama-wallet-lib":"git+https://github.com/VerusCoin/agama-wallet-lib.git#dev","axios":"^1.3.2"},"repository":{"type":"git","url":"git+https://github.com/The-New-Fork/transaction-js.git"},"author":"","license":"ISC","bugs":{"url":"https://github.com/The-New-Fork/transaction-js/issues"},"homepage":"https://github.com/The-New-Fork/transaction-js#readme"}

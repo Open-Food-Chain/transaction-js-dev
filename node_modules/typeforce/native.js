@@ -6,6 +6,7 @@ var types = {
   Number: function (value) { return typeof value === 'number' },
   Object: function (value) { return typeof value === 'object' },
   String: function (value) { return typeof value === 'string' },
+  Buffer: function (value) { return Buffer.isBuffer(value) },
   '': function () { return true }
 }
 
