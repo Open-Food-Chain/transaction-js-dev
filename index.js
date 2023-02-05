@@ -28,14 +28,36 @@ const req = http.get(options1, (res) => {
 req.end()
 */
 
-axios.get('http://blockchain-explorer.staging.juicychain.org/insight-api-komodo/addrs/RWw3NDp2CJumPCRj9fm6HovJNeFJi9eLyy/utxo')
-  .then(res => { console.log(res.data) })
+
+
+axios.get('http://blockchain-explorer.staging.juicychain.org/insight-api-komodo/addrs/RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN/utxo')
+  .then(res => { 
+	console.log(res.data[0])
+	var utxo = [res.data[0]]
+	utxo[0]['value'] = utxo[0]['satoshis']
+	console.log(utxo)
+	const changeValue = 200000000000
+	const spendValue = 1
+	var options;
+
+	console.log(network)
+
+	console.log(txlib.transactionBuilder.transaction(sendTo, changeAddress, wif, network, utxo, changeValue, spendValue, options));
+
+// the hello world program
+	console.log('Hello World');
+  
+  })
   .catch(err => {
     console.log('Error: ', err.message);
   });
 
 
-var utxo = [{
+
+
+//select utxo's
+
+/*var utxo = [{
     "address": "RVaH1r1i2dos15SzD6MBVp8KNEcKTnrn7u",
     "txid": "93507012d0486e7cb43a8d21db796b23286ea2f540e476bdedbce83badf565e1",
     "vout": 0,
@@ -46,11 +68,12 @@ var utxo = [{
     "height": 274652,
     "confirmations": 18
     }]
+*/
 
 
 //value and amount sats = same
 
-const changeValue = 1
+/*const changeValue = 1
 const spendValue = 1
 var options;
 
@@ -60,3 +83,4 @@ console.log(txlib.transactionBuilder.transaction(sendTo, changeAddress, wif, net
 
 // the hello world program
 console.log('Hello World');
+*/
