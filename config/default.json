@@ -1,0 +1,9 @@
+{ "test":"test",
+  "explorer": {
+    "utxo_url":"https://blockchain-explorer.staging.juicychain.org/insight-api-komodo/addrs/RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN/utxo",
+    "send_url":"https://blockchain-explorer.staging.juicychain.org/insight-api-komodo/tx/send"
+  },
+  "networks": {
+    "name":"kmd"
+  }
+}
