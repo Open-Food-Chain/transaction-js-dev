@@ -74,7 +74,7 @@ function maketx(sendTo, changeAddress, wif, amount) {
 		let targets = [
       			{
         		address: sendTo,
-        		value: utxos[0]['satoshis']-1-amount ,
+        		value: amount ,
      			},
     		];
 
