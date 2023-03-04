@@ -56,7 +56,7 @@ const fixElements = (utxo) => {
 }
 
 
-function maketx(sendTo, changeAddress, wif) {
+function maketx(sendTo, changeAddress, wif, amount) {
 	var utxos
         const utxo_url = base_url + address_url_ext + changeAddress + utxo_url_ext 
 	axios.get(utxo_url)
@@ -74,7 +74,7 @@ function maketx(sendTo, changeAddress, wif) {
 		let targets = [
       			{
         		address: sendTo,
-        		value: utxos[0]['satoshis']-1 ,
+        		value: utxos[0]['satoshis']-1-amount ,
      			},
     		];
 
