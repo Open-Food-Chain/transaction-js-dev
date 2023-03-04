@@ -17,13 +17,15 @@ const BigNumber = require('@ethersproject/bignumber');
 const coinSelect = require('coinselect')
 
 //vars
-const sendTo = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
-const changeAddress = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
-const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
+//const sendTo = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
+//const changeAddress = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
+//const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
 
-const IADDRESS_VERSION = 102
-const utxo_url = config.get('explorer.utxo_url') 
+const IADDRESS_VERSION = 102 
 const send_url = config.get('explorer.send_url')
+const base_url = config.get('explorer.base_url')
+const address_url_ext = config.get('explorer.address_url_ext')
+const utxo_url_ext = config.get('explorer.utxo_url_ext')
 const name_network = config.get('networks.name')
 
 const generateOutputScript = (destHash, destVersion, isCC) => {
@@ -55,11 +57,11 @@ const fixElements = (utxo) => {
 
 
 //add keys, target, and amount as vars
-const maketx = () => {
+const maketx = (sendTo, changeAddress, wif) => {
 
 
 	var utxos
-
+        const utxo_url = base_url + address_url_ext + changeAddress + utxo_url_ext 
 	axios.get(utxo_url)
   	  .then(res => { 
 		var  tx = "test"
@@ -102,7 +104,6 @@ const maketx = () => {
 	    	txb.setVersionGroupId(0x892f2085);
 		for (const input of inputs) {
       			const {txid, vout, scriptPubKey, value} = input;
-			console.log(input)
       			const inputValueBigNum = value
 
       			inputValues.push(inputValueBigNum)
@@ -152,5 +153,5 @@ const maketx = () => {
 
 }
 
-maketx()
+maketx("RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN", "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN", "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio")
 
