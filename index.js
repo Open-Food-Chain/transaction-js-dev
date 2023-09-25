@@ -160,13 +160,33 @@ async function send_batch_transactions( name_ecpair, batchObj, key){
    name_ecpair = remove_keys_from_json_object(name_ecpair, filter)
    console.log(to_addy)
 
+  all_tx = []
+
    for (const key in batchObj) {
-      console.log(`The value of ${key} is ${test_batch[key]}`);
+      //console.log(`The value of ${key} is ${test_batch[key]}`);
       const from_addy = name_ecpair[key].getAddress()
       const from_wif = name_ecpair[key].keyPair.toWIF()
       console.log(`the address ${from_addy}, the wif ${from_wif}`)
       txid = await maketx.maketx(to_addy, from_addy, from_wif, 2000)
+      //console.log(`The value of ${key} is ${test_batch[key]}, tx is ${txid}`)
+      all_tx.push(txid.data)
    }
+
+  return all_tx
+}
+
+
+async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
+  all_tx = []
+
+  for (const element in name_ecpair) {
+    
+    txid = await maketx.maketx(name_ecpair[element].getAddress(), baseAddy, baseWIF, 2000)
+   
+    all_tx.push(txid.data);
+  }
+
+  return all_tx
 }
 
 /*final = get_all_wallets( wallet, res);
@@ -212,7 +232,16 @@ ec_pairs = get_all_ecpairs( ret )
 
 console.log(ec_pairs);
 
+baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
+baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio";
+
 ( async () => { 
-  const tx = send_batch_transactions( ec_pairs, test_batch, res )
+  const tx = await fund_offline_wallets( ec_pairs, baseAddy, baseWIF ) 
+  console.log(tx)
+})();
+
+
+( async () => { 
+  const tx = await send_batch_transactions( ec_pairs, test_batch, res )
   console.log(tx)
 })();
