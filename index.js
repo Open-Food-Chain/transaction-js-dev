@@ -29,6 +29,9 @@ const wallet = {
   WALLET_MASS_BALANCE: "MASS_BALANCE"
 };
 
+const test_bnfp = "187556"
+
+
 function generate_string(name){
 
     obj = {
@@ -113,9 +116,15 @@ function get_all_wallets( wallet, keypair){
     return name_and_seed
 }
 
+function create_batch_address( bnfp, key ){
+   const wallet = generate_seed_offline_wallet( bnfp, key )
+   const pair = bitGoUTXO.HDNode.fromSeedBuffer(wallet, bitGoUTXO.networks[name_network]);
+   const addy = pair.getAddress()
+   return addy
+}
 
 
-final = get_all_wallets( wallet, res);
+/*final = get_all_wallets( wallet, res);
 
 console.log(final)
 
@@ -141,3 +150,12 @@ const sleep = (milliseconds) => {
     console.log("txid")
   }
 })();
+
+*/
+
+baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
+//baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
+
+
+const wal = create_batch_address( test_bnfp, res)
+console.log(wal)
