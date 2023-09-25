@@ -1,3 +1,4 @@
+
 const config = require('config');
 const txlib = require('agama-wallet-lib');
 const http = require('node:http');
@@ -56,11 +57,11 @@ const fixElements = (utxo) => {
 }
 
 
-function maketx(sendTo, changeAddress, wif, amount) {
+async function maketx(sendTo, changeAddress, wif, amount) {
 	var utxos
         const utxo_url = base_url + address_url_ext + changeAddress + utxo_url_ext 
-	axios.get(utxo_url)
-  	  .then(res => { 
+	const ret = await axios.get(utxo_url)
+  	  .then( async (res) => { 
 		var  tx = "test"
 		let inputValueSats = 0
     		const inputValues = []
@@ -138,15 +139,38 @@ function maketx(sendTo, changeAddress, wif, amount) {
 	
 		tx = tx.toHex()
 
-		tx = { 'rawtx': tx }
+                //return new Promise(async (resolve, reject) => {
+                const payload = { 'rawtx': tx };
+                try {
+                    var res = await axios.post(send_url, payload);
+                   // console.log(res)
+                   // console.log("exit")
+                    return res 
+               //    resolve(res);
+                } catch (error) {
+                    console.log('Error:', error);
+                    return res
+                //   reject(error);
+                }
+               
 
-		axios.post(send_url, tx)
-          	  .then( res => { console.log("txid ", res.data) })
-        	  .catch(err => { console.log('Error: ', err.message) });  
+		/*tx = { 'rawtx': tx }
+                try {
+    		  res = await axios.post(send_url, tx)
+                  console.log("response is:")
+                  return res
+                } catch (error) {
+                  console.log('Error:', error);
+                }*/
+          	  //.then( res => { console.log("txid ", res.data) })
+        	 // .catch( err => { console.log('Error: ', err.message) });  
        	})
   	.catch(err => {
     	console.log('Error: ', err.message);
+        return err
   	});
+
+       return ret
 
 }
 

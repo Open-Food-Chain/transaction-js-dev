@@ -1,9 +1,11 @@
+
+
 const config = require('config');
 let bitGoUTXO = require('@bitgo/utxo-lib')
 
 const maketx = require('./maketx')
 
-maketx.maketx("RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN", "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN", "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio", 2000)
+//maketx.maketx("RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN", "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN", "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio", 2000)
 
 
 //const name_network = bitGoUTXO.networks.name
@@ -121,4 +123,21 @@ final = get_all_ecpairs( final )
 
 console.log(final)
 
+baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
+baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
 
+const sleep = (milliseconds) => {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
+};
+
+
+(async () => {
+  for (const element in final) {
+    console.log(element)
+    txid = await maketx.maketx(final[element].getAddress(), baseAddy, baseWIF, 2000)
+    //txid = await txid
+    console.log("txid")
+    console.log(txid.data);
+    console.log("txid")
+  }
+})();
