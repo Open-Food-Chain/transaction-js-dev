@@ -16,6 +16,28 @@ addy = res.getAddress()
 
 console.log(addy)
 
+const test_batch = {
+        "id": "b6c23100-bb41-4477-b0a5-f72e8504c9fb",
+        "anfp": "11000011",
+        "dfp": "Description here",
+        "bnfp": "637893",
+        "pds": "2020-03-01",
+        "pde": "2020-03-05",
+        "jds": 2,
+        "jde": 7,
+        "bbd": "2020-05-05",
+        "pc": "DE",
+        "pl": "Herrath",
+        "rmn": "11200100520",
+        "pon": "123072",
+        "pop": "164",
+        "mass": 1.0,
+        "raw_json": "eyBcImFuZnBcIjogXCIxMTAwMDAxMVwiLFwiZGZwXCI6IFwiRGVzY3JpcHRpb24gaGVyZVwiLFwiYm5mcFwiOiBcIjYzNzg5M1wiLFwicGRzXCI6IFwiMjAyMC0wMy0xXCIsXCJwZGVcIjogXCIyMDIwLTAzLTVcIixcImpkc1wiOiAyLFwiamRlXCI6IDcsXCJiYmRcIjogXCIyMDIwLTA1LTVcIixcInBjXCI6IFwiREVcIixcInBsXCI6IFwiSGVycmF0aFwiLFwicm1uXCI6IFwiMTEyMDAxMDA1MjBcIixcInBvblwiOiBcIjEyMzA3MlwiLFwicG9wXCI6IFwiMTY0XCIK",
+        "integrity_details": null,
+        "created_at": "2023-09-25T08:21:45.070925Z",
+        "percentage": null
+    }
+
 const wallet = {
   WALLET_DELIVERY_DATE: "DELIVERY_DATE",
   WALLET_JULIAN_START: "JULIAN_START",
@@ -108,7 +130,7 @@ function get_all_wallets( wallet, keypair){
     var name_and_seed = {};
 
     for (const key in wallet) {
-        str = generate_string(wallet[key]);
+        str = generate_string( key);
         seed =  generate_seed_offline_wallet( str, keypair );
         name_and_seed[key] = seed;
     }
@@ -123,6 +145,29 @@ function create_batch_address( bnfp, key ){
    return addy
 }
 
+function remove_keys_from_json_object(jsonObject, keysToRemove) {
+  const newObj = { ...jsonObject }; // Create a shallow copy of the original object
+  keysToRemove.forEach((key) => {
+    delete newObj[key];
+  });
+  return newObj;
+}
+
+async function send_batch_transactions( name_ecpair, batchObj, key){
+   const to_addy = create_batch_address( batchObj['bnfp'], key)
+   filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
+   batchObj = remove_keys_from_json_object(batchObj, filter)
+   name_ecpair = remove_keys_from_json_object(name_ecpair, filter)
+   console.log(to_addy)
+
+   for (const key in batchObj) {
+      console.log(`The value of ${key} is ${test_batch[key]}`);
+      const from_addy = name_ecpair[key].getAddress()
+      const from_wif = name_ecpair[key].keyPair.toWIF()
+      console.log(`the address ${from_addy}, the wif ${from_wif}`)
+      txid = await maketx.maketx(to_addy, from_addy, from_wif, 2000)
+   }
+}
 
 /*final = get_all_wallets( wallet, res);
 
@@ -153,9 +198,21 @@ const sleep = (milliseconds) => {
 
 */
 
-baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
+//baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
 //baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
 
 
-const wal = create_batch_address( test_bnfp, res)
-console.log(wal)
+//const wal = get_all_wallets( test_bnfp, res)
+//console.log(wal)
+
+const ret = get_all_wallets( test_batch, res )
+//filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
+//const final = remove_keys_from_json_object(ret, filter)
+ec_pairs = get_all_ecpairs( ret )
+
+console.log(ec_pairs);
+
+( async () => { 
+  const tx = send_batch_transactions( ec_pairs, test_batch, res )
+  console.log(tx)
+})();
