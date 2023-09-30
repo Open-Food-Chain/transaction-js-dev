@@ -68,7 +68,7 @@ async function maketx(sendTo, changeAddress, wif, amount) {
     		let isCC = false;
     		let isChangeCC = false;
 		const network = networks[name_network]
-	
+                amount = Math.round(amount*100000000)	
 		const txb = new TransactionBuilder(network);
 		utxos = res.data
 	
@@ -82,7 +82,11 @@ async function maketx(sendTo, changeAddress, wif, amount) {
 	
 		utxos.forEach(fixElements)
 
+                console.log(`targets: ${JSON.stringify(targets)}`)
+
 		let {inputs, outputs} = coinSelect(utxos, targets, 0);
+
+                console.log(`inputs: ${JSON.stringify(inputs)}, outputs: ${JSON.stringify(outputs)}`)
 
 		if (!outputs) {
       			throw new Error(
@@ -114,15 +118,24 @@ async function maketx(sendTo, changeAddress, wif, amount) {
         			Buffer.from(scriptPubKey, 'hex'),
       			);
     		}
-		const valueSats = inputValueSats - 1
+		const valueSats = amount
+                console.log(`value sats: ${valueSats}`)
 		const addr = address.fromBase58Check(sendTo);
-    		const selfAddr = address.fromBase58Check(sendTo);
+    		const selfAddr = address.fromBase58Check(changeAddress,);
 
-		let actualFeeSats = inputValueSats - valueSats 
+		//let actualFeeSats = inputValueSats - valueSats 
 
     		const outputScript = generateOutputScript(addr.hash, addr.version, isCC)
 
 		txb.addOutput(outputScript, valueSats);
+
+                const return_amount = inputValueSats - valueSats - 1
+                const return_outputScript = generateOutputScript(selfAddr.hash, selfAddr.version, isCC)
+
+                txb.addOutput(return_outputScript, return_amount);
+
+
+               let actualFeeSats = inputValueSats - return_amount - valueSats;
 
 		let keyPair = ECPair.fromWIF(wif, network)
 
@@ -148,8 +161,8 @@ async function maketx(sendTo, changeAddress, wif, amount) {
                     return res 
                //    resolve(res);
                 } catch (error) {
-                    console.log('Error:', error);
-                    return res
+                    console.log('Error:', error.response.data);
+                    return error
                 //   reject(error);
                 }
                
@@ -166,7 +179,7 @@ async function maketx(sendTo, changeAddress, wif, amount) {
         	 // .catch( err => { console.log('Error: ', err.message) });  
        	})
   	.catch(err => {
-    	console.log('Error: ', err.message);
+  //  	console.log('Error: ', err.message);
         return err
   	});
 

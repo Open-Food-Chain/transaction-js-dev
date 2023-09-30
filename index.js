@@ -153,6 +153,60 @@ function remove_keys_from_json_object(jsonObject, keysToRemove) {
   return newObj;
 }
 
+function categorizeVariable(varInput) {
+  // Check if it's an integer
+  if (Number.isInteger(varInput)) {
+    return 0;
+  }
+
+  // Check if it's a string representing an integer
+  if (typeof varInput === 'string' && !isNaN(varInput) && Number.isInteger(Number(varInput))) {
+    return 0;
+  }
+  
+  // Check if it's a date in yyyy-mm-dd format
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (typeof varInput === 'string' && dateRegex.test(varInput)) {
+    const dateParts = varInput.split('-');
+    const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+    if (date && !isNaN(date.getTime())) {
+      return 1;
+    }
+  }
+
+  // Otherwise, it's a string
+  return 2;
+}
+
+function get_sat_value( value ){
+   if (value == null){
+      return "0"
+   }
+   const cat = categorizeVariable( value )
+   //console.log(cat)
+   if (cat == 0){
+//      console.log("int")
+      const length = value.toString().length;
+      console.log(`value: ${value}, length: ${length}`)
+      if (length < 4){
+         value = value*1000
+      }
+      console.log(`new val: ${value}`)
+      value = value / 100000000;
+      return value
+   }else if (cat == 1){
+//      console.log("date")
+      value = value.replace(/-/g, '');  // Replace dashes with empty string
+      value = Number(value);  // Convert to number
+      value = value / 100000000;
+      //value = String(value)
+      return value
+   }else if (cat == 2){
+      console.log("string")
+      console.log(value)
+   }
+}
+
 async function send_batch_transactions( name_ecpair, batchObj, key){
    const to_addy = create_batch_address( batchObj['bnfp'], key)
    filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
@@ -166,10 +220,16 @@ async function send_batch_transactions( name_ecpair, batchObj, key){
       //console.log(`The value of ${key} is ${test_batch[key]}`);
       const from_addy = name_ecpair[key].getAddress()
       const from_wif = name_ecpair[key].keyPair.toWIF()
-      console.log(`the address ${from_addy}, the wif ${from_wif}`)
-      txid = await maketx.maketx(to_addy, from_addy, from_wif, 2000)
+//      console.log(`the address ${from_addy}, the wif ${from_wif}`)
+      const val = get_sat_value( batchObj[key] )
+      txid = await maketx.maketx(to_addy, from_addy, from_wif, val)
+      if (txid.data == undefined){
+      //   console.log(`addy: ${from_addy}, key: ${key}, amount: ${val}`)
+         all_tx.push(key)
+      }else{
       //console.log(`The value of ${key} is ${test_batch[key]}, tx is ${txid}`)
-      all_tx.push(txid.data)
+         all_tx.push(txid.data)
+      }
    }
 
   return all_tx
@@ -181,9 +241,12 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
 
   for (const element in name_ecpair) {
     
-    txid = await maketx.maketx(name_ecpair[element].getAddress(), baseAddy, baseWIF, 2000)
-   
-    all_tx.push(txid.data);
+    txid = await maketx.maketx(name_ecpair[element].getAddress(), baseAddy, baseWIF, 100)
+    if (txid == undefined) {
+        all_tx.push(name_ecpair[element].getAddress())
+    }else{   
+        all_tx.push(txid.data);
+    }
   }
 
   return all_tx
@@ -191,11 +254,11 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
 
 /*final = get_all_wallets( wallet, res);
 
-console.log(final)
+//console.log(final)
 
-final = get_all_ecpairs( final )
+//final = get_all_ecpairs( final )
 
-console.log(final)
+//console.log(final)
 
 baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
 baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
@@ -206,17 +269,17 @@ const sleep = (milliseconds) => {
 
 
 (async () => {
-  for (const element in final) {
-    console.log(element)
-    txid = await maketx.maketx(final[element].getAddress(), baseAddy, baseWIF, 2000)
+//  for (const element in final) {
+//    console.log(element)
+    txid = await maketx.maketx(res.getAddress(), baseAddy, baseWIF, 2000)
     //txid = await txid
     console.log("txid")
     console.log(txid.data);
     console.log("txid")
   }
-})();
-
+)();
 */
+
 
 //baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
 //baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
@@ -224,24 +287,35 @@ const sleep = (milliseconds) => {
 
 //const wal = get_all_wallets( test_bnfp, res)
 //console.log(wal)
+/*filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
+var batchObj = remove_keys_from_json_object(test_batch, filter)
+
+
+for (const key in batchObj) {
+     const val = get_sat_value( test_batch[key] )
+     console.log(val)
+}*/
+
 
 const ret = get_all_wallets( test_batch, res )
 //filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
 //const final = remove_keys_from_json_object(ret, filter)
 ec_pairs = get_all_ecpairs( ret )
 
-console.log(ec_pairs);
+//console.log(ec_pairs);
 
 baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
 baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio";
 
-( async () => { 
+/*( async () => { 
   const tx = await fund_offline_wallets( ec_pairs, baseAddy, baseWIF ) 
   console.log(tx)
 })();
-
+*/
 
 ( async () => { 
   const tx = await send_batch_transactions( ec_pairs, test_batch, res )
   console.log(tx)
 })();
+
+
