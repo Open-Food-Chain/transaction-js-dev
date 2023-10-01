@@ -1,10 +1,19 @@
+// Import required modules
 const config = require('config');
-let bitGoUTXO = require('@bitgo/utxo-lib')
+let bitGoUTXO = require('@bitgo/utxo-lib');
+const maketx = require('./maketx');
 
-const maketx = require('./maketx')
+// Retrieve network name from the config file
+const name_network = config.get('networks.name');
 
-const name_network = config.get('networks.name')
-
+/**
+ * Generates a string from the given name.
+ * The string consists of the JSON representation of an object containing the name, 
+ * followed by the name itself.
+ *
+ * @param {string} name - The name to be converted to a string
+ * @returns {string} - The generated string
+ */
 function generate_string(name){
 
     obj = {
@@ -17,6 +26,12 @@ function generate_string(name){
     return full
 }
 
+/**
+ * Encodes a Buffer into a Base58 string.
+ *
+ * @param {Buffer} buffer - The buffer to encode
+ * @returns {string} - The Base58 encoded string
+ */
 function encodeBase58(buffer) {
   const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
   let carry, digits = [0];
@@ -40,6 +55,13 @@ function encodeBase58(buffer) {
   return ALPHABET[digits.pop()] + ALPHABET[0].repeat(zero) + digits.reverse().map(d => ALPHABET[d]).join('');
 }
 
+/**
+ * Generates a seed for an offline wallet.
+ * 
+ * @param {string} str - The initial string to use for generating the seed
+ * @param {Object} key - The key for signing to generate the seed
+ * @returns {Buffer} - The generated seed
+ */
 function generate_seed_offline_wallet( str, key ){
     var myBuffer = Buffer.from(str, 'utf-8');
 
@@ -61,24 +83,33 @@ function generate_seed_offline_wallet( str, key ){
     return sign
 }
 
-
+/**
+ * Generates key pairs for all wallets in the provided object.
+ * 
+ * @param {Object} wallet - The wallet object containing names
+ * @param {Object} keypair - The key pair to use for generating seeds
+ * @returns {Object} - An object mapping wallet names to their corresponding key pairs
+ */
 function get_all_ecpairs( wallet, keypair ){
     wallet = get_all_wallets( wallet, keypair)
 
     var name_and_pair = {};
 
     for (const key in wallet) {
-        //str = generate_string(wallet[key]);
-        console.log(key)
-        console.log(wallet[key])
         pair = bitGoUTXO.HDNode.fromSeedBuffer(wallet[key], bitGoUTXO.networks[name_network]);
-        //seed =  generate_seed_offline_wallet( str, res );
         name_and_pair[key] = pair;
     }
 
     return name_and_pair
 }
 
+/**
+ * Generates seeds for all the wallets in the provided object.
+ * 
+ * @param {Object} wallet - The wallet object containing names
+ * @param {Object} keypair - The key pair to use for generating seeds
+ * @returns {Object} - An object mapping wallet names to their corresponding seeds
+ */
 function get_all_wallets( wallet, keypair){
     var name_and_seed = {};
 
@@ -91,6 +122,13 @@ function get_all_wallets( wallet, keypair){
     return name_and_seed
 }
 
+/**
+ * Generates an address for a batch transaction.
+ * 
+ * @param {string} bnfp - The batch transaction string
+ * @param {Object} key - The key to sign the seed
+ * @returns {string} - The generated address
+ */
 function create_batch_address( bnfp, key ){
    const wallet = generate_seed_offline_wallet( bnfp, key )
    const pair = bitGoUTXO.HDNode.fromSeedBuffer(wallet, bitGoUTXO.networks[name_network]);
@@ -98,6 +136,14 @@ function create_batch_address( bnfp, key ){
    return addy
 }
 
+
+/**
+ * Removes specified keys from a JSON object.
+ * 
+ * @param {Object} jsonObject - The original JSON object
+ * @param {Array} keysToRemove - Array of keys to remove
+ * @returns {Object} - New object with specified keys removed
+ */
 function remove_keys_from_json_object(jsonObject, keysToRemove) {
   const newObj = { ...jsonObject }; // Create a shallow copy of the original object
   keysToRemove.forEach((key) => {
@@ -106,6 +152,12 @@ function remove_keys_from_json_object(jsonObject, keysToRemove) {
   return newObj;
 }
 
+/**
+ * Categorizes the input variable as an integer, date, or string.
+ * 
+ * @param {*} varInput - The variable to categorize
+ * @returns {number} - 0 for integer, 1 for date, 2 for string
+ */
 function categorizeVariable(varInput) {
   // Check if it's an integer
   if (Number.isInteger(varInput)) {
@@ -131,24 +183,27 @@ function categorizeVariable(varInput) {
   return 2;
 }
 
+
+/**
+ * Converts a value to its Satoshi equivalent.
+ * 
+ * @param {*} value - The value to convert
+ * @returns {string} - The value in Satoshi units
+ */
 function get_sat_value( value ){
    if (value == null){
       return "0"
    }
    const cat = categorizeVariable( value )
-   //console.log(cat)
    if (cat == 0){
-//      console.log("int")
       const length = value.toString().length;
-      console.log(`value: ${value}, length: ${length}`)
       if (length < 4){
          value = value*1000
       }
-      console.log(`new val: ${value}`)
       value = value / 100000000;
       return value
    }else if (cat == 1){
-//      console.log("date")
+
       value = value.replace(/-/g, '');  // Replace dashes with empty string
       value = Number(value);  // Convert to number
       value = value / 100000000;
@@ -160,27 +215,34 @@ function get_sat_value( value ){
    }
 }
 
+/**
+ * Sends batch transactions to multiple addresses.
+ * 
+ * @param {Object} name_ecpair - Object mapping names to key pairs
+ * @param {Object} batchObj - Object containing batch transaction details
+ * @param {Object} key - The key to use for signing
+ * @returns {Array} - An array containing transaction IDs or error information
+ */
 async function send_batch_transactions( name_ecpair, batchObj, key){
    const to_addy = create_batch_address( batchObj['bnfp'], key)
    filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
    batchObj = remove_keys_from_json_object(batchObj, filter)
    name_ecpair = remove_keys_from_json_object(name_ecpair, filter)
-   console.log(to_addy)
 
    var all_tx = []
 
    for (const key in batchObj) {
-      //console.log(`The value of ${key} is ${test_batch[key]}`);
+
       const from_addy = name_ecpair[key].getAddress()
       const from_wif = name_ecpair[key].keyPair.toWIF()
-//      console.log(`the address ${from_addy}, the wif ${from_wif}`)
+
       const val = get_sat_value( batchObj[key] )
       txid = await maketx.maketx(to_addy, from_addy, from_wif, val)
       if (txid.data == undefined){
-      //   console.log(`addy: ${from_addy}, key: ${key}, amount: ${val}`)
+
          all_tx.push(key)
       }else{
-      //console.log(`The value of ${key} is ${test_batch[key]}, tx is ${txid}`)
+
          all_tx.push(txid.data)
       }
    }
@@ -188,7 +250,14 @@ async function send_batch_transactions( name_ecpair, batchObj, key){
   return all_tx
 }
 
-
+/**
+ * Funds offline wallets with a small amount of cryptocurrency.
+ * 
+ * @param {Object} name_ecpair - Object mapping names to key pairs
+ * @param {string} baseAddy - The source address for funding
+ * @param {string} baseWIF - The Wallet Import Format string for the source address
+ * @returns {Array} - An array containing transaction IDs or error information
+ */
 async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
   var all_tx = []
 
@@ -204,8 +273,6 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
 
   return all_tx
 }
-
-console.log("hello world")
 
 
 module.exports = { fund_offline_wallets, send_batch_transactions, get_all_ecpairs };
