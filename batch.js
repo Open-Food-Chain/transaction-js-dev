@@ -237,9 +237,11 @@ async function send_batch_transactions( name_ecpair, batchObj, key){
       const from_wif = name_ecpair[key].keyPair.toWIF()
 
       const val = get_sat_value( batchObj[key] )
-      txid = await maketx.maketx(to_addy, from_addy, from_wif, val)
+      const sendTo = [ { [to_addy]:val } ]
+      console.log(sendTo)
+      txid = await maketx.maketx(sendTo, from_addy, from_wif)
       if (txid.data == undefined){
-
+        
          all_tx.push(key)
       }else{
 
@@ -262,8 +264,10 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
   var all_tx = []
 
   for (const element in name_ecpair) {
-    
-    txid = await maketx.maketx(name_ecpair[element].getAddress(), baseAddy, baseWIF, 100)
+    const addr = name_ecpair[element].getAddress()
+    const sendTo = [ { [addr]:100 } ]
+    console.log(sendTo)
+    txid = await maketx.maketx(sendTo, baseAddy, baseWIF)
     if (txid == undefined) {
         all_tx.push(name_ecpair[element].getAddress())
     }else{   

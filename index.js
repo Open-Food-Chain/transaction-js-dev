@@ -54,14 +54,13 @@ ec_pairs = get_all_ecpairs( test_batch, res )
 baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
 baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio";
 
-( async () => { 
+/*( async () => { 
   const tx1 = await fund_offline_wallets( ec_pairs, baseAddy, baseWIF ) 
   console.log(`fund: ${JSON.stringify(tx1)}`)
-})();
+})();*/
 
 
 ( async () => { 
   const tx2 = await send_batch_transactions( ec_pairs, test_batch, res )
   console.log(`batch: ${JSON.stringify(tx2)}`)
 })();
-

@@ -57,7 +57,7 @@ const fixElements = (utxo) => {
 }
 
 
-async function maketx(sendTo, changeAddress, wif, amount) {
+async function maketx(sendTo, changeAddress, wif) {
 	var utxos
         const utxo_url = base_url + address_url_ext + changeAddress + utxo_url_ext 
 	const ret = await axios.get(utxo_url)
@@ -67,17 +67,15 @@ async function maketx(sendTo, changeAddress, wif, amount) {
     		const inputValues = []
     		let isCC = false;
     		let isChangeCC = false;
-		const network = networks[name_network]
-                amount = Math.round(amount*100000000)	
+		const network = networks[name_network]	
 		const txb = new TransactionBuilder(network);
 		utxos = res.data
-	
-		let targets = [
-      			{
-        		address: sendTo,
-        		value: amount ,
-     			},
-    		];
+
+                let targets = sendTo.map(obj => {
+                    const address = Object.keys(obj)[0];
+                    const value = Math.round(obj[address]*100000000);
+                    return { address, value };
+                });
 
 	
 		utxos.forEach(fixElements)
@@ -118,16 +116,26 @@ async function maketx(sendTo, changeAddress, wif, amount) {
         			Buffer.from(scriptPubKey, 'hex'),
       			);
     		}
-		const valueSats = amount
+		var valueSats = 0
                 console.log(`value sats: ${valueSats}`)
-		const addr = address.fromBase58Check(sendTo);
-    		const selfAddr = address.fromBase58Check(changeAddress,);
+
+                for (let i = 0; i < sendTo.length; i++) {
+                   const key = Object.keys(sendTo[i])[0];
+                   console.log(key)
+                   const addr = address.fromBase58Check(key);
+                   const outputScript = generateOutputScript(addr.hash, addr.version, isCC)
+                   const value = Math.round(sendTo[i][key]*100000000)
+                   txb.addOutput(outputScript, value);
+                   valueSats = valueSats + value
+                }
+		//const addr = address.fromBase58Check(sendTo);
+    		const selfAddr = address.fromBase58Check(changeAddress);
 
 		//let actualFeeSats = inputValueSats - valueSats 
 
-    		const outputScript = generateOutputScript(addr.hash, addr.version, isCC)
+    		//const outputScript = generateOutputScript(addr.hash, addr.version, isCC)
 
-		txb.addOutput(outputScript, valueSats);
+		//txb.addOutput(outputScript, valueSats);
 
                 const return_amount = inputValueSats - valueSats - 1
                 const return_outputScript = generateOutputScript(selfAddr.hash, selfAddr.version, isCC)
