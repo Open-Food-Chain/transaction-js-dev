@@ -1,58 +1,11 @@
-
-
 const config = require('config');
 let bitGoUTXO = require('@bitgo/utxo-lib')
 
 const maketx = require('./maketx')
 
-const { fund_offline_wallets, send_batch_transactions, get_all_ecpairs } = require('./batch.js')
-
 const name_network = config.get('networks.name')
 
-res = bitGoUTXO.ECPair.fromWIF("UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio", bitGoUTXO.networks[name_network])
-addy = res.getAddress()
-
-console.log(addy)
-
-const test_batch = {
-        "id": "b6c23100-bb41-4477-b0a5-f72e8504c9fb",
-        "anfp": "11000011",
-        "dfp": "Description here",
-        "bnfp": "637893",
-        "pds": "2020-03-01",
-        "pde": "2020-03-05",
-        "jds": 2,
-        "jde": 7,
-        "bbd": "2020-05-05",
-        "pc": "DE",
-        "pl": "Herrath",
-        "rmn": "11200100520",
-        "pon": "123072",
-        "pop": "164",
-        "mass": 1.0,
-        "raw_json": "eyBcImFuZnBcIjogXCIxMTAwMDAxMVwiLFwiZGZwXCI6IFwiRGVzY3JpcHRpb24gaGVyZVwiLFwiYm5mcFwiOiBcIjYzNzg5M1wiLFwicGRzXCI6IFwiMjAyMC0wMy0xXCIsXCJwZGVcIjogXCIyMDIwLTAzLTVcIixcImpkc1wiOiAyLFwiamRlXCI6IDcsXCJiYmRcIjogXCIyMDIwLTA1LTVcIixcInBjXCI6IFwiREVcIixcInBsXCI6IFwiSGVycmF0aFwiLFwicm1uXCI6IFwiMTEyMDAxMDA1MjBcIixcInBvblwiOiBcIjEyMzA3MlwiLFwicG9wXCI6IFwiMTY0XCIK",
-        "integrity_details": null,
-        "created_at": "2023-09-25T08:21:45.070925Z",
-        "percentage": null
-    }
-
-const wallet = {
-  WALLET_DELIVERY_DATE: "DELIVERY_DATE",
-  WALLET_JULIAN_START: "JULIAN_START",
-  WALLET_JULIAN_STOP: "JULIAN_STOP",
-  WALLET_BB_DATE: "BB_DATE",
-  WALLET_PROD_DATE: "PROD_DATE",
-  WALLET_ORIGIN_COUNTRY: "ORIGIN_COUNTRY",
-  WALLET_TIN: "TIN",
-  WALLET_PON: "PON",
-  WALLET_PRODUCTID: "PRODUCTID",
-  WALLET_MASS_BALANCE: "MASS_BALANCE"
-};
-
-const test_bnfp = "187556"
-
-
-/*function generate_string(name){
+function generate_string(name){
 
     obj = {
         "name": name
@@ -109,7 +62,9 @@ function generate_seed_offline_wallet( str, key ){
 }
 
 
-function get_all_ecpairs( wallet ){
+function get_all_ecpairs( wallet, keypair ){
+    wallet = get_all_wallets( wallet, keypair)
+
     var name_and_pair = {};
 
     for (const key in wallet) {
@@ -205,14 +160,14 @@ function get_sat_value( value ){
    }
 }
 
-/*async function send_batch_transactions( name_ecpair, batchObj, key){
+async function send_batch_transactions( name_ecpair, batchObj, key){
    const to_addy = create_batch_address( batchObj['bnfp'], key)
    filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
    batchObj = remove_keys_from_json_object(batchObj, filter)
    name_ecpair = remove_keys_from_json_object(name_ecpair, filter)
    console.log(to_addy)
 
-  all_tx = []
+   var all_tx = []
 
    for (const key in batchObj) {
       //console.log(`The value of ${key} is ${test_batch[key]}`);
@@ -235,7 +190,7 @@ function get_sat_value( value ){
 
 
 async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
-  all_tx = []
+  var all_tx = []
 
   for (const element in name_ecpair) {
     
@@ -248,71 +203,9 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
   }
 
   return all_tx
-}*/
+}
 
-/*final = get_all_wallets( wallet, res);
-
-//console.log(final)
-
-//final = get_all_ecpairs( final )
-
-//console.log(final)
-
-baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
-baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
-
-const sleep = (milliseconds) => {
-  return new Promise(resolve => setTimeout(resolve, milliseconds));
-};
+console.log("hello world")
 
 
-(async () => {
-//  for (const element in final) {
-//    console.log(element)
-    txid = await maketx.maketx(res.getAddress(), baseAddy, baseWIF, 2000)
-    //txid = await txid
-    console.log("txid")
-    console.log(txid.data);
-    console.log("txid")
-  }
-)();
-*/
-
-
-//baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
-//baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
-
-
-//const wal = get_all_wallets( test_bnfp, res)
-//console.log(wal)
-/*filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
-var batchObj = remove_keys_from_json_object(test_batch, filter)
-
-
-for (const key in batchObj) {
-     const val = get_sat_value( test_batch[key] )
-     console.log(val)
-}*/
-
-
-//const ret = get_all_wallets( test_batch, res )
-//filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
-//const final = remove_keys_from_json_object(ret, filter)
-ec_pairs = get_all_ecpairs( test_batch, res )
-
-//console.log(ec_pairs);
-
-baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
-baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio";
-
-( async () => { 
-  const tx1 = await fund_offline_wallets( ec_pairs, baseAddy, baseWIF ) 
-  console.log(`fund: ${JSON.stringify(tx1)}`)
-})();
-
-
-( async () => { 
-  const tx2 = await send_batch_transactions( ec_pairs, test_batch, res )
-  console.log(`batch: ${JSON.stringify(tx2)}`)
-})();
-
+module.exports = { fund_offline_wallets, send_batch_transactions, get_all_ecpairs };
