@@ -54,13 +54,91 @@ ec_pairs = get_all_ecpairs( test_batch, res )
 baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
 baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio";
 
+test_string = "Description here"
+
+const convertStringToSats = (str) => {
+  let ret = convertAsciiStringToBytes(str) // Assuming //239 is a comment
+  ret = intArrayToSatable(ret); // Assuming // is a comment
+  ret = satableStringToSats(ret);
+  return ret;
+}
+
+const satableStringToSats = (strVar, maxSats = 100000000) => {
+  let decrese = 0;
+  let nTx = 10;
+
+  const maxSatsLen = String(maxSats).length
+
+  // Determine order number
+  while (decrese < Math.log10(nTx)) {
+    decrese += 1;
+    const maxSatsLen = String(maxSats).length - decrese;
+    nTx = Math.ceil(strVar.length / maxSatsLen);
+  }
+
+  const ret = [];
+  for (let x = 0; x < nTx; x++) {
+    let strX = String(x);
+
+    for (let n = 0; n < decrese - strX.length; n++) {
+      strX = "0" + strX;
+    }
+
+    const newStr = strVar.substring(0, maxSatsLen) + strX;
+    strVar = strVar.substring(maxSatsLen);
+
+    while (strVar.length < String(maxSats).length) {
+      strVar = "0" + strVar;
+    }
+
+    ret.push(newStr);
+  }
+
+  return ret;
+}
+
+const intArrayToSatable = (arrInt) => {
+  let finalInt = 0;
+  let buildStr = "";
+  const maxLenVal = 3;
+
+  for (const val of arrInt) {
+    let strVal = String(val);
+
+    if (strVal.length < maxLenVal) {
+      for (let x = 0; x < maxLenVal - strVal.length; x++) {
+        strVal = "0" + strVal;
+      }
+    }
+
+    buildStr = buildStr + strVal;
+  }
+
+  return buildStr;
+}
+
+const convertAsciiStringToBytes = (str) => {
+  const byteValue = Buffer.from(str, 'utf-8');
+  const totalInt = [];
+  for (const byte of byteValue) {
+    totalInt.push(byte);
+  }
+  return totalInt;
+}
+
+ret = convertStringToSats( test_string )
+console.log(ret)
+
+
 /*( async () => { 
   const tx1 = await fund_offline_wallets( ec_pairs, baseAddy, baseWIF ) 
   console.log(`fund: ${JSON.stringify(tx1)}`)
 })();*/
 
 
-( async () => { 
+/*( async () => { 
   const tx2 = await send_batch_transactions( ec_pairs, test_batch, res )
   console.log(`batch: ${JSON.stringify(tx2)}`)
 })();
+*/
+
