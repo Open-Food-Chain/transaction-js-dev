@@ -126,7 +126,20 @@ const convertAsciiStringToBytes = (str) => {
   return totalInt;
 }
 
-ret = convertStringToSats( test_string )
+const convArrToJSON = ( arr, toAddr ) => {
+  let jsonArr = []
+
+  for (let i = 0; i < arr.length; i++) {
+    console.log(arr[i]);
+    jsonArr.push({ [toAddr]:arr[i] })
+  }
+
+  return jsonArr
+}
+
+const toaddr = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
+
+ret = convArrToJSON( test_string, toaddr )
 console.log(ret)
 
 
