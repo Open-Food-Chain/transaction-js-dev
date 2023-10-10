@@ -210,10 +210,28 @@ function get_sat_value( value ){
       //value = String(value)
       return value
    }else if (cat == 2){
-      console.log("string")
-      console.log(value)
+      //console.log("string")
+      value = convertStringToSats( value  )
+      //console.log(value)
+      return value
    }
 }
+
+function val_to_obj( value, to_addy ){
+    
+   if (Array.isArray(value) == true ){
+     let sendTo = []       
+     for (let i = 0; i < value.length; i++) {
+        console.log(value[i]);
+        sendTo.push({ [to_addy]:value[i] })
+     }
+     return sendTo
+   }else{
+     return [ { [to_addy]:value } ]
+   }
+
+}
+
 
 /**
  * Sends batch transactions to multiple addresses.
@@ -237,11 +255,14 @@ async function send_batch_transactions( name_ecpair, batchObj, key){
       const from_wif = name_ecpair[key].keyPair.toWIF()
 
       const val = get_sat_value( batchObj[key] )
-      const sendTo = [ { [to_addy]:val } ]
+      const sendTo = val_to_obj( val, to_addy )
+
+      
+
       console.log(sendTo)
       txid = await maketx.maketx(sendTo, from_addy, from_wif)
       if (txid.data == undefined){
-        
+         console.log(txid)
          all_tx.push(key)
       }else{
 
@@ -276,6 +297,87 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
   }
 
   return all_tx
+}
+
+const convertStringToSats = (str) => {
+  let ret = convertAsciiStringToBytes(str) // Assuming //239 is a comment
+  ret = intArrayToSatable(ret); // Assuming // is a comment
+  ret = satableStringToSats(ret);
+  return ret;
+}
+
+const satableStringToSats = (strVar, maxSats = 100000000) => {
+  let decrese = 0;
+  let nTx = 10;
+
+  const maxSatsLen = String(maxSats).length
+
+  // Determine order number
+  while (decrese < Math.log10(nTx)) {
+    decrese += 1;
+    const maxSatsLen = String(maxSats).length - decrese;
+    nTx = Math.ceil(strVar.length / maxSatsLen);
+  }
+
+  const ret = [];
+  for (let x = 0; x < nTx; x++) {
+    let strX = String(x);
+
+    for (let n = 0; n < decrese - strX.length; n++) {
+      strX = "0" + strX;
+    }
+
+    const newStr = strVar.substring(0, maxSatsLen) + strX;
+    strVar = strVar.substring(maxSatsLen);
+
+    while (strVar.length < String(maxSats).length) {
+      strVar = "0" + strVar;
+    }
+
+    ret.push(newStr);
+  }
+
+  return ret;
+}
+
+const intArrayToSatable = (arrInt) => {
+  let finalInt = 0;
+  let buildStr = "";
+  const maxLenVal = 3;
+
+  for (const val of arrInt) {
+    let strVal = String(val);
+
+    if (strVal.length < maxLenVal) {
+      for (let x = 0; x < maxLenVal - strVal.length; x++) {
+        strVal = "0" + strVal;
+      }
+    }
+
+    buildStr = buildStr + strVal;
+  }
+
+  return buildStr;
+}
+
+const convertAsciiStringToBytes = (str) => {
+  const byteValue = Buffer.from(str, 'utf-8');
+  const totalInt = [];
+  for (const byte of byteValue) {
+    totalInt.push(byte);
+  }
+  return totalInt;
+}
+
+const convArrToJSON = ( arr, toAddr ) => {
+  let jsonArr = []
+
+  for (let i = 0; i < arr.length; i++) {
+    console.log(arr[i]);
+    jsonArr.push({ [toAddr]:arr[i] })
+  }
+
+  return jsonArr
 }
 
 

@@ -54,9 +54,9 @@ ec_pairs = get_all_ecpairs( test_batch, res )
 baseAddy = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
 baseWIF = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio";
 
-test_string = "Description here"
+test_string = "Description here";
 
-const convertStringToSats = (str) => {
+/*const convertStringToSats = (str) => {
   let ret = convertAsciiStringToBytes(str) // Assuming //239 is a comment
   ret = intArrayToSatable(ret); // Assuming // is a comment
   ret = satableStringToSats(ret);
@@ -141,7 +141,7 @@ const toaddr = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
 
 ret = convArrToJSON( test_string, toaddr )
 console.log(ret)
-
+*/
 
 /*( async () => { 
   const tx1 = await fund_offline_wallets( ec_pairs, baseAddy, baseWIF ) 
@@ -149,9 +149,9 @@ console.log(ret)
 })();*/
 
 
-/*( async () => { 
+( async () => { 
   const tx2 = await send_batch_transactions( ec_pairs, test_batch, res )
   console.log(`batch: ${JSON.stringify(tx2)}`)
 })();
-*/
+
 
