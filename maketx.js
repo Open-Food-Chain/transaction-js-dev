@@ -28,6 +28,12 @@ const base_url = config.get('explorer.base_url')
 const address_url_ext = config.get('explorer.address_url_ext')
 const utxo_url_ext = config.get('explorer.utxo_url_ext')
 const name_network = config.get('networks.name')
+const https = require('https');
+
+const agent = new https.Agent({  
+  rejectUnauthorized: false
+});
+
 
 const generateOutputScript = (destHash, destVersion, isCC) => {
   if (isCC) {
@@ -60,7 +66,7 @@ const fixElements = (utxo) => {
 async function maketx(sendTo, changeAddress, wif) {
 	var utxos
         const utxo_url = base_url + address_url_ext + changeAddress + utxo_url_ext 
-	const ret = await axios.get(utxo_url)
+	const ret = await axios.get(utxo_url, { httpsAgent: agent })
   	  .then( async (res) => { 
 		var  tx = "test"
 		let inputValueSats = 0
@@ -163,7 +169,7 @@ async function maketx(sendTo, changeAddress, wif) {
                 //return new Promise(async (resolve, reject) => {
                 const payload = { 'rawtx': tx };
                 try {
-                    var res = await axios.post(send_url, payload);
+                    var res = await axios.post(send_url, payload, { httpsAgent: agent });
                    // console.log(res)
                    // console.log("exit")
                     return res 

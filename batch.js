@@ -223,7 +223,8 @@ function val_to_obj( value, to_addy ){
      let sendTo = []       
      for (let i = 0; i < value.length; i++) {
         console.log(value[i]);
-        sendTo.push({ [to_addy]:value[i] })
+        const val = value[i]/1000000000
+        sendTo.push({ [to_addy]:val })
      }
      return sendTo
    }else{
