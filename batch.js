@@ -1,10 +1,28 @@
 // Import required modules
-const config = require('config');
+//const config = require('config');
 let bitGoUTXO = require('@bitgo/utxo-lib');
 const maketx = require('./maketx');
 
+const axios = require('axios');
+const config = require('config');
+//const http = require('node:http');
+const https = require('https');
+
+const send_url = config.get('explorer.send_url')
+const base_url = config.get('explorer.base_url')
+const address_url_ext = config.get('explorer.address_url_ext')
+const utxo_url_ext = config.get('explorer.utxo_url_ext')
+
+const min_utxos = config.get('batch.min_utxos')
+
 // Retrieve network name from the config file
 const name_network = config.get('networks.name');
+
+const agent = new https.Agent({  
+  rejectUnauthorized: false
+});
+
+
 
 /**
  * Generates a string from the given name.
@@ -286,15 +304,36 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
   var all_tx = []
 
   for (const element in name_ecpair) {
+    //get utxos .len
     const addr = name_ecpair[element].getAddress()
+
+    const utxos = await getUtxos(addr)
+        if ( utxos.data.length < min_utxos ){
+
+          const sendTo = [{ [addr]: 100 }];
+          const txid = await maketx.maketx(sendTo, baseAddy, baseWIF);
+   
+          if (txid == undefined) {
+            all_tx.push(name_ecpair[element].getAddress());
+          } else {
+            all_tx.push(txid.data);
+          }
+        }
+   
+
+    /*const utxos = getUtxos(addr)
+  
+    console.log(utxos)
+
     const sendTo = [ { [addr]:100 } ]
-    console.log(sendTo)
+    console.log(`base: ${baseAddy}`)
+
     txid = await maketx.maketx(sendTo, baseAddy, baseWIF)
     if (txid == undefined) {
         all_tx.push(name_ecpair[element].getAddress())
     }else{   
         all_tx.push(txid.data);
-    }
+    }*/
   }
 
   return all_tx
@@ -379,6 +418,13 @@ const convArrToJSON = ( arr, toAddr ) => {
   }
 
   return jsonArr
+}
+
+const getUtxos = async ( addr ) => {
+  const utxo_url = base_url + address_url_ext + addr + utxo_url_ext 
+  const ret = await axios.get(utxo_url, { httpsAgent: agent })
+  return ret
+
 }
 
 
