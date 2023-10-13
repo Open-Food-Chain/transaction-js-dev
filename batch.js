@@ -289,6 +289,15 @@ async function send_batch_transactions( name_ecpair, batchObj, key){
       }
    }
 
+///   console.log(key)
+      const baseAddy = key.getAddress()
+      const baseWIF = key.toWIF()
+
+ 
+   
+  const ret = await fund_offline_wallets( name_ecpair, baseAddy, baseWIF )
+  console.log(ret)
+
   return all_tx
 }
 

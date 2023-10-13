@@ -58,15 +58,14 @@ test_string = "Description here";
 console.log(ec_pairs);
 
 
-( async () => { 
+/*( async () => { 
   const tx1 = await fund_offline_wallets( ec_pairs, baseAddy, baseWIF ) 
   console.log(`fund: ${JSON.stringify(tx1)}`)
 })();
+*/
 
-
-/*( async () => { 
+( async () => { 
   const tx2 = await send_batch_transactions( ec_pairs, test_batch, res )
   console.log(`batch: ${JSON.stringify(tx2)}`)
 })();
 
-*/
