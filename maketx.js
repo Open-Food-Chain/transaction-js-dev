@@ -1,7 +1,6 @@
 
 
 const config = require('config');
-const txlib = require('agama-wallet-lib');
 const axios = require('axios');
 const {
   script,
@@ -24,25 +23,12 @@ import appConfig from './appConfig';
 //const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
 
 const IADDRESS_VERSION = 102 
-<<<<<<< HEAD
 const send_url = appConfig.explorer.send_url;
 const base_url = appConfig.explorer.base_url;
 const address_url_ext = appConfig.explorer.address_url_ext;
 const utxo_url_ext = appConfig.explorer.utxo_url_ext;
 const name_network = appConfig.networks.name;
 
-=======
-const send_url = config.get('explorer.send_url')
-const base_url = config.get('explorer.base_url')
-const address_url_ext = config.get('explorer.address_url_ext')
-const utxo_url_ext = config.get('explorer.utxo_url_ext')
-const name_network = config.get('networks.name')
-const https = require('https');
-
-const agent = new https.Agent({  
-  rejectUnauthorized: false
-});
->>>>>>> refs/remotes/origin/main
 
 
 const generateOutputScript = (destHash, destVersion, isCC) => {
@@ -74,7 +60,6 @@ const fixElements = (utxo) => {
 
 
 async function maketx(sendTo, changeAddress, wif) {
-<<<<<<< HEAD
   var utxos
         const utxo_url = base_url + address_url_ext + changeAddress + utxo_url_ext 
   const ret = await axios.get(utxo_url, { httpsAgent: agent })
@@ -87,26 +72,6 @@ async function maketx(sendTo, changeAddress, wif) {
     const network = networks[name_network]  
     const txb = new TransactionBuilder(network);
     utxos = res.data
-=======
-	var utxos
-        const utxo_url = base_url + address_url_ext + changeAddress + utxo_url_ext 
-	const ret = await axios.get(utxo_url, { httpsAgent: agent })
-  	  .then( async (res) => { 
-		var  tx = "test"
-		let inputValueSats = 0
-    		const inputValues = []
-    		let isCC = false;
-    		let isChangeCC = false;
-		const network = networks[name_network]	
-		const txb = new TransactionBuilder(network);
-		utxos = res.data
-
-                let targets = sendTo.map(obj => {
-                    const address = Object.keys(obj)[0];
-                    const value = Math.round(obj[address]*100000000);
-                    return { address, value };
-                });
->>>>>>> refs/remotes/origin/main
 
                 let targets = sendTo.map(obj => {
                     const address = Object.keys(obj)[0];
@@ -146,7 +111,6 @@ async function maketx(sendTo, changeAddress, wif) {
             inputValues.push(inputValueBigNum)
             inputValueSats = inputValueSats + inputValueBigNum
 
-<<<<<<< HEAD
             txb.addInput(
               txid,
               vout,
@@ -156,29 +120,6 @@ async function maketx(sendTo, changeAddress, wif) {
         }
     var valueSats = 0
                 console.log(`value sats: ${valueSats}`)
-=======
-      			txb.addInput(
-        			txid,
-        			vout,
-        			Transaction.DEFAULT_SEQUENCE,
-        			Buffer.from(scriptPubKey, 'hex'),
-      			);
-    		}
-		var valueSats = 0
-                console.log(`value sats: ${valueSats}`)
-
-                for (let i = 0; i < sendTo.length; i++) {
-                   const key = Object.keys(sendTo[i])[0];
-                   console.log(key)
-                   const addr = address.fromBase58Check(key);
-                   const outputScript = generateOutputScript(addr.hash, addr.version, isCC)
-                   const value = Math.round(sendTo[i][key]*100000000)
-                   txb.addOutput(outputScript, value);
-                   valueSats = valueSats + value
-                }
-		//const addr = address.fromBase58Check(sendTo);
-    		const selfAddr = address.fromBase58Check(changeAddress);
->>>>>>> refs/remotes/origin/main
 
                 for (let i = 0; i < sendTo.length; i++) {
                    const key = Object.keys(sendTo[i])[0];
@@ -192,17 +133,11 @@ async function maketx(sendTo, changeAddress, wif) {
     //const addr = address.fromBase58Check(sendTo);
         const selfAddr = address.fromBase58Check(changeAddress);
 
-<<<<<<< HEAD
     //let actualFeeSats = inputValueSats - valueSats 
 
         //const outputScript = generateOutputScript(addr.hash, addr.version, isCC)
 
     //txb.addOutput(outputScript, valueSats);
-=======
-    		//const outputScript = generateOutputScript(addr.hash, addr.version, isCC)
-
-		//txb.addOutput(outputScript, valueSats);
->>>>>>> refs/remotes/origin/main
 
                 const return_amount = inputValueSats - valueSats - 1
                 const return_outputScript = generateOutputScript(selfAddr.hash, selfAddr.version, isCC)
