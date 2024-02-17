@@ -4,9 +4,6 @@ let bitGoUTXO = require('@bitgo/utxo-lib');
 const maketx = require('./maketx');
 
 const axios = require('axios');
-//const config = require('config');
-//const http = require('node:http');
-//const https = require('https');
 
 import appConfig from './appConfig';
 const send_url = appConfig.explorer.send_url;
@@ -23,6 +20,12 @@ const name_network = appConfig.networks.name;
   rejectUnauthorized: false
 });
 */
+
+
+const agent = new https.Agent({  
+  rejectUnauthorized: false
+});
+
 
 
 /**

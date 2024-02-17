@@ -7,6 +7,7 @@ var scriptHash = require('./scripthash')
 var witnessPubKeyHash = require('./witnesspubkeyhash')
 var witnessScriptHash = require('./witnessscripthash')
 var witnessCommitment = require('./witnesscommitment')
+var smartTransaction = require('./smarttransaction')
 
 var types = {
   MULTISIG: 'multisig',
@@ -17,7 +18,8 @@ var types = {
   P2SH: 'scripthash',
   P2WPKH: 'witnesspubkeyhash',
   P2WSH: 'witnessscripthash',
-  WITNESS_COMMITMENT: 'witnesscommitment'
+  WITNESS_COMMITMENT: 'witnesscommitment',
+  SMART_TRANSACTION: 'smarttransaction'
 }
 
 function classifyOutput (script) {
@@ -28,6 +30,7 @@ function classifyOutput (script) {
 
   // XXX: optimization, below functions .decompile before use
   var chunks = decompile(script)
+  if (smartTransaction.output.check(chunks)) return types.SMART_TRANSACTION
   if (multisig.output.check(chunks)) return types.MULTISIG
   if (pubKey.output.check(chunks)) return types.P2PK
   if (witnessCommitment.output.check(chunks)) return types.WITNESS_COMMITMENT
@@ -43,6 +46,7 @@ function classifyInput (script, allowIncomplete) {
   if (pubKeyHash.input.check(chunks)) return types.P2PKH
   if (scriptHash.input.check(chunks, allowIncomplete)) return types.P2SH
   if (multisig.input.check(chunks, allowIncomplete)) return types.MULTISIG
+  if (smartTransaction.input.check(chunks)) return types.SMART_TRANSACTION
   if (pubKey.input.check(chunks)) return types.P2PK
 
   return types.NONSTANDARD
@@ -67,6 +71,7 @@ module.exports = {
   pubKey: pubKey,
   pubKeyHash: pubKeyHash,
   scriptHash: scriptHash,
+  smartTransaction: smartTransaction,
   witnessPubKeyHash: witnessPubKeyHash,
   witnessScriptHash: witnessScriptHash,
   witnessCommitment: witnessCommitment,

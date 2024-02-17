@@ -16,6 +16,11 @@
     "type": "git",
     "url": "git+https://github.com/The-New-Fork/transaction-js.git"
   },
+  "overrides":{
+
+       "blake2b-wasm": "git+https://github.com/Open-Food-Chain/blake2b-wasm.git",
+       "@bitgo/blake2b-wasm":"git+https://github.com/Open-Food-Chain/blake2b-wasm.git"
+  },
   "author": "",
   "license": "ISC",
   "bugs": {

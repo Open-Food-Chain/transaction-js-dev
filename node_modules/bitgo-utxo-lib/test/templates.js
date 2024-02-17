@@ -56,6 +56,7 @@ describe('script-templates', function () {
     'scriptHash',
     'witnessPubKeyHash',
     'witnessScriptHash',
+    'smartTransaction',
     'multisig',
     'nullData',
     'witnessCommitment'

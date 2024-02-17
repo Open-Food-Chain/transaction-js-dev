@@ -13,17 +13,16 @@ var SIGNABLE = [
   btemplates.types.P2PKH,
   btemplates.types.P2PK,
   btemplates.types.MULTISIG,
-  btemplates.types.SMART_TRANSACTION,
-];
+  btemplates.types.SMART_TRANSACTION
+]
 var P2SH = SIGNABLE.concat([btemplates.types.P2WPKH, btemplates.types.P2WSH])
 
 var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 var Transaction = require('./transaction')
-var OptCCParams = require('./optccparams')
 var SmartTransactionSignatures = require('./smart_transaction_signatures')
 var SmartTransactionSignature = require('./smart_transaction_signature')
-const { getMainnet, getNetworkName } = require('./coins')
+const { getMainnet } = require('./coins')
 
 var debug = require('debug')('bitgo:utxolib:txbuilder')
 
@@ -45,7 +44,7 @@ function extractChunks (type, chunks, script) {
       pubKeys = chunks.slice(1)
       signatures = chunks.slice(0, 1)
       break
-    
+
     case scriptTypes.SMART_TRANSACTION:
       signatures = [chunks[0]]
       break
@@ -263,7 +262,7 @@ function expandOutput (script, scriptType, ourPubKey) {
       var wpkh2 = bcrypto.hash160(ourPubKey)
       if (wpkh1.equals(wpkh2)) pubKeys = [ourPubKey]
       break
-    
+
     case scriptTypes.SMART_TRANSACTION:
       if (!ourPubKey) break
 
@@ -306,7 +305,7 @@ function checkP2WSHInput (input, witnessScriptHash) {
   }
 }
 
-function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScript) {  
+function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScript) {
   var expanded
   var prevOutType
   var prevOutScript
@@ -412,7 +411,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
   input.witness = witness
 }
 
-function buildStack (type, signatures, pubKeys, allowIncomplete) {  
+function buildStack (type, signatures, pubKeys, allowIncomplete) {
   if (type === scriptTypes.P2PKH) {
     if (signatures.length === 1 && Buffer.isBuffer(signatures[0]) && pubKeys.length === 1) return btemplates.pubKeyHash.input.encodeStack(signatures[0], pubKeys[0])
   } else if (type === scriptTypes.SMART_TRANSACTION) {
@@ -544,21 +543,21 @@ TransactionBuilder.prototype.setConsensusBranchId = function (consensusBranchId)
   if (!coins.isZcashCompatible(this.network)) {
     throw new Error('consensusBranchId can only be set for Zcash or compatible transactions')
   }
-  if (!this.inputs.every(function (input) { 
+  if (!this.inputs.every(function (input) {
     if (input.prevOutType === scriptTypes.SMART_TRANSACTION) {
-      if (input.signatures === undefined || input.signatures.length == 0) return true
+      if (input.signatures === undefined || input.signatures.length === 0) return true
       const smartTxSigs = SmartTransactionSignatures.fromChunk(bscript.decompile(input.signatures)[0])
 
       if (
         smartTxSigs.error != null ||
-        smartTxSigs.signatures.length == 0 ||
-        smartTxSigs.signatures.every((sig) => sig.oneSignature.length == 0)
+        smartTxSigs.signatures.length === 0 ||
+        smartTxSigs.signatures.every((sig) => sig.oneSignature.length === 0)
       ) {
         return true
       }
     }
 
-    return input.signatures === undefined 
+    return input.signatures === undefined
   })) {
     /* istanbul ignore next */
     throw new Error('Changing the consensusBranchId for a partially signed transaction would invalidate signatures')
@@ -697,7 +696,7 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
   })
 }
 
-TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options) {  
+TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options) {
   if (Transaction.isCoinbaseHash(txHash)) {
     throw new Error('coinbase inputs not supported')
   }
@@ -796,7 +795,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   return tx
 }
 
-function canSign(input) {
+function canSign (input) {
   return (
     input.prevOutScript !== undefined &&
     input.signScript !== undefined &&
@@ -805,7 +804,7 @@ function canSign(input) {
     input.signatures.length === input.pubKeys.length &&
     input.pubKeys.length > 0 &&
     (input.witness === false || (input.witness === true && input.value !== undefined))
-  );
+  )
 }
 
 TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashType, witnessValue, witnessScript) {
@@ -847,7 +846,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
     witnessValue,
     hashType,
     !!input.witness
-  );
+  )
 
   // enforce in order signing of public keys
   var signed = input.pubKeys.some(function (pubKey, i) {
@@ -868,10 +867,10 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
           1,
           pubKey,
           signature.toCompact().slice(1)
-        ),
+        )
       ]).toChunk()
     } else input.signatures[i] = signature.toScriptSignature(hashType)
-    
+
     return true
   })
 
@@ -910,8 +909,8 @@ TransactionBuilder.prototype.__canModifyOutputs = function () {
 
       if (
         smartTxSigs.error != null ||
-        smartTxSigs.signatures.length == 0 ||
-        smartTxSigs.signatures.every((sig) => sig.oneSignature.length == 0)
+        smartTxSigs.signatures.length === 0 ||
+        smartTxSigs.signatures.every((sig) => sig.oneSignature.length === 0)
       ) {
         return true
       }
