@@ -1,0 +1,17 @@
+const appConfig = {
+  test: "test",
+  explorer: {
+    base_url: "https://occs.explorer.batch.events/insight-api-komodo/",
+    address_url_ext: "addrs/",
+    utxo_url_ext: "/utxo",
+    send_url: "https://occs.explorer.batch.events/insight-api-komodo/tx/send",
+  },
+  networks: {
+    name: "kmd",
+  },
+  batch: {
+    min_utxos: 30,
+  },
+};
+
+export default appConfig;

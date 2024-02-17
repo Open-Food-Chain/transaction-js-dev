@@ -1,10 +1,29 @@
 // Import required modules
-const config = require('config');
+//const config = require('config');
 let bitGoUTXO = require('@bitgo/utxo-lib');
 const maketx = require('./maketx');
 
+const axios = require('axios');
+//const config = require('config');
+//const http = require('node:http');
+//const https = require('https');
+
+import appConfig from './appConfig';
+const send_url = appConfig.explorer.send_url;
+const base_url = appConfig.explorer.base_url;
+const address_url_ext = appConfig.explorer.address_url_ext;
+const utxo_url_ext = appConfig.explorer.utxo_url_ext;
+
+const min_utxos = appConfig.batch.min_utxos;
+
 // Retrieve network name from the config file
-const name_network = config.get('networks.name');
+const name_network = appConfig.networks.name;
+
+/*const agent = new https.Agent({  
+  rejectUnauthorized: false
+});
+*/
+
 
 /**
  * Generates a string from the given name.
@@ -210,10 +229,29 @@ function get_sat_value( value ){
       //value = String(value)
       return value
    }else if (cat == 2){
-      console.log("string")
-      console.log(value)
+      //console.log("string")
+      value = convertStringToSats( value  )
+      //console.log(value)
+      return value
    }
 }
+
+function val_to_obj( value, to_addy ){
+    
+   if (Array.isArray(value) == true ){
+     let sendTo = []       
+     for (let i = 0; i < value.length; i++) {
+        console.log(value[i]);
+        const val = value[i]/1000000000
+        sendTo.push({ [to_addy]:val })
+     }
+     return sendTo
+   }else{
+     return [ { [to_addy]:value } ]
+   }
+
+}
+
 
 /**
  * Sends batch transactions to multiple addresses.
@@ -237,15 +275,29 @@ async function send_batch_transactions( name_ecpair, batchObj, key){
       const from_wif = name_ecpair[key].keyPair.toWIF()
 
       const val = get_sat_value( batchObj[key] )
-      txid = await maketx.maketx(to_addy, from_addy, from_wif, val)
-      if (txid.data == undefined){
+      const sendTo = val_to_obj( val, to_addy )
 
+      
+
+      console.log(sendTo)
+      txid = await maketx.maketx(sendTo, from_addy, from_wif)
+      if (txid.data == undefined){
+         console.log(txid)
          all_tx.push(key)
       }else{
 
          all_tx.push(txid.data)
       }
    }
+
+///   console.log(key)
+      const baseAddy = key.getAddress()
+      const baseWIF = key.toWIF()
+
+ 
+   
+  const ret = await fund_offline_wallets( name_ecpair, baseAddy, baseWIF )
+  console.log(ret)
 
   return all_tx
 }
@@ -262,16 +314,127 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
   var all_tx = []
 
   for (const element in name_ecpair) {
-    
-    txid = await maketx.maketx(name_ecpair[element].getAddress(), baseAddy, baseWIF, 100)
+    //get utxos .len
+    const addr = name_ecpair[element].getAddress()
+
+    const utxos = await getUtxos(addr)
+        if ( utxos.data.length < min_utxos ){
+
+          const sendTo = [{ [addr]: 100 }];
+          const txid = await maketx.maketx(sendTo, baseAddy, baseWIF);
+   
+          if (txid == undefined) {
+            all_tx.push(name_ecpair[element].getAddress());
+          } else {
+            all_tx.push(txid.data);
+          }
+        }
+   
+
+    /*const utxos = getUtxos(addr)
+  
+    console.log(utxos)
+
+    const sendTo = [ { [addr]:100 } ]
+    console.log(`base: ${baseAddy}`)
+
+    txid = await maketx.maketx(sendTo, baseAddy, baseWIF)
     if (txid == undefined) {
         all_tx.push(name_ecpair[element].getAddress())
     }else{   
         all_tx.push(txid.data);
-    }
+    }*/
   }
 
   return all_tx
+}
+
+const convertStringToSats = (str) => {
+  let ret = convertAsciiStringToBytes(str) // Assuming //239 is a comment
+  ret = intArrayToSatable(ret); // Assuming // is a comment
+  ret = satableStringToSats(ret);
+  return ret;
+}
+
+const satableStringToSats = (strVar, maxSats = 100000000) => {
+  let decrese = 0;
+  let nTx = 10;
+
+  const maxSatsLen = String(maxSats).length
+
+  // Determine order number
+  while (decrese < Math.log10(nTx)) {
+    decrese += 1;
+    const maxSatsLen = String(maxSats).length - decrese;
+    nTx = Math.ceil(strVar.length / maxSatsLen);
+  }
+
+  const ret = [];
+  for (let x = 0; x < nTx; x++) {
+    let strX = String(x);
+
+    for (let n = 0; n < decrese - strX.length; n++) {
+      strX = "0" + strX;
+    }
+
+    const newStr = strVar.substring(0, maxSatsLen) + strX;
+    strVar = strVar.substring(maxSatsLen);
+
+    while (strVar.length < String(maxSats).length) {
+      strVar = "0" + strVar;
+    }
+
+    ret.push(newStr);
+  }
+
+  return ret;
+}
+
+const intArrayToSatable = (arrInt) => {
+  let finalInt = 0;
+  let buildStr = "";
+  const maxLenVal = 3;
+
+  for (const val of arrInt) {
+    let strVal = String(val);
+
+    if (strVal.length < maxLenVal) {
+      for (let x = 0; x < maxLenVal - strVal.length; x++) {
+        strVal = "0" + strVal;
+      }
+    }
+
+    buildStr = buildStr + strVal;
+  }
+
+  return buildStr;
+}
+
+const convertAsciiStringToBytes = (str) => {
+  const byteValue = Buffer.from(str, 'utf-8');
+  const totalInt = [];
+  for (const byte of byteValue) {
+    totalInt.push(byte);
+  }
+  return totalInt;
+}
+
+const convArrToJSON = ( arr, toAddr ) => {
+  let jsonArr = []
+
+  for (let i = 0; i < arr.length; i++) {
+    console.log(arr[i]);
+    jsonArr.push({ [toAddr]:arr[i] })
+  }
+
+  return jsonArr
+}
+
+const getUtxos = async ( addr ) => {
+  const utxo_url = base_url + address_url_ext + addr + utxo_url_ext 
+  const ret = await axios.get(utxo_url, { httpsAgent: agent })
+  return ret
+
 }
 
 
