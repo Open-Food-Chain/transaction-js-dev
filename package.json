@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@bitgo/utxo-lib": "git+https://github.com/VerusCoin/BitGoJS.git#7c754d4a5920198d9fe6827d3e23bd5cf431f264",
+    "@bitgo/utxo-lib": "git+https://github.com/VerusCoin/BitGoJS.git#utxo-lib-verus",
     "@ethersproject/bignumber": "^5.7.0",
     "axios": "^1.3.2",
     "coinselect": "^3.1.13"

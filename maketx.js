@@ -1,6 +1,7 @@
 
 
 const config = require('config');
+const txlib = require('agama-wallet-lib');
 const axios = require('axios');
 const {
   script,
@@ -23,12 +24,12 @@ import appConfig from './appConfig';
 //const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
 
 const IADDRESS_VERSION = 102 
+
 const send_url = appConfig.explorer.send_url;
 const base_url = appConfig.explorer.base_url;
 const address_url_ext = appConfig.explorer.address_url_ext;
 const utxo_url_ext = appConfig.explorer.utxo_url_ext;
 const name_network = appConfig.networks.name;
-
 
 
 const generateOutputScript = (destHash, destVersion, isCC) => {
@@ -132,12 +133,6 @@ async function maketx(sendTo, changeAddress, wif) {
                 }
     //const addr = address.fromBase58Check(sendTo);
         const selfAddr = address.fromBase58Check(changeAddress);
-
-    //let actualFeeSats = inputValueSats - valueSats 
-
-        //const outputScript = generateOutputScript(addr.hash, addr.version, isCC)
-
-    //txb.addOutput(outputScript, valueSats);
 
                 const return_amount = inputValueSats - valueSats - 1
                 const return_outputScript = generateOutputScript(selfAddr.hash, selfAddr.version, isCC)
