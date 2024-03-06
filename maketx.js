@@ -16,7 +16,7 @@ const {
 } = require('@bitgo/utxo-lib');
 const BigNumber = require('@ethersproject/bignumber');
 const coinSelect = require('coinselect')
-import appConfig from './appConfig';
+const { appConfig } = require('./appConfig');
 
 //vars
 //const sendTo = "RMNSVdQhbSzBVTGt2SVFtBg7sTbB8mXYwN"
@@ -63,7 +63,7 @@ const fixElements = (utxo) => {
 async function maketx(sendTo, changeAddress, wif) {
   var utxos
         const utxo_url = base_url + address_url_ext + changeAddress + utxo_url_ext 
-  const ret = await axios.get(utxo_url, { httpsAgent: agent })
+  const ret = await axios.get(utxo_url)
       .then( async (res) => { 
     var  tx = "test"
     let inputValueSats = 0
@@ -160,7 +160,7 @@ async function maketx(sendTo, changeAddress, wif) {
                 //return new Promise(async (resolve, reject) => {
                 const payload = { 'rawtx': tx };
                 try {
-                    var res = await axios.post(send_url, payload, { httpsAgent: agent });
+                    var res = await axios.post(send_url, payload);
                    // console.log(res)
                    // console.log("exit")
                     return res 

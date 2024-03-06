@@ -5,7 +5,7 @@ const maketx = require('./maketx');
 
 const axios = require('axios');
 
-import appConfig from './appConfig';
+const { appConfig } = require('./appConfig');
 const send_url = appConfig.explorer.send_url;
 const base_url = appConfig.explorer.base_url;
 const address_url_ext = appConfig.explorer.address_url_ext;
@@ -22,9 +22,9 @@ const name_network = appConfig.networks.name;
 */
 
 
-const agent = new https.Agent({  
-  rejectUnauthorized: false
-});
+// const agent = new https.Agent({  
+//  rejectUnauthorized: false
+// });
 
 
 
@@ -435,7 +435,7 @@ const convArrToJSON = ( arr, toAddr ) => {
 
 const getUtxos = async ( addr ) => {
   const utxo_url = base_url + address_url_ext + addr + utxo_url_ext 
-  const ret = await axios.get(utxo_url, { httpsAgent: agent })
+  const ret = await axios.get(utxo_url)
   return ret
 
 }

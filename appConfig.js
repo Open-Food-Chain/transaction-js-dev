@@ -1,10 +1,10 @@
 const appConfig = {
   test: "test",
   explorer: {
-    base_url: "https://occs.explorer.batch.events/insight-api-komodo/",
+    base_url: "https://blockchain-explorer.occs.openfoodchain.org/insight-api-komodo/",
     address_url_ext: "addrs/",
     utxo_url_ext: "/utxo",
-    send_url: "https://occs.explorer.batch.events/insight-api-komodo/tx/send",
+    send_url: "https://blockchain-explorer.occs.openfoodchain.org/insight-api-komodo/tx/send",
   },
   networks: {
     name: "kmd",
@@ -14,4 +14,4 @@ const appConfig = {
   },
 };
 
-export default appConfig;
+module.exports = { appConfig };

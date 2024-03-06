@@ -1,7 +1,8 @@
 
 const config = require('config');
 let bitGoUTXO = require('@bitgo/utxo-lib')
-import appConfig from './appConfig';
+const { appConfig } = require('./appConfig');
+
 
 
 const { fund_offline_wallets, send_batch_transactions, get_all_ecpairs } = require('./batch.js')
