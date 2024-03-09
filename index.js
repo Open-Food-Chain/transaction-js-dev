@@ -7,6 +7,8 @@ const { appConfig } = require('./appConfig');
 
 const { fund_offline_wallets, send_batch_transactions, get_all_ecpairs } = require('./batch.js')
 
+const { maketx, maketxopreturn } = require('./maketx')
+
 const name_network = appConfig.networks.name;
 
 const test_batch = {
@@ -91,5 +93,24 @@ async function sample_batch( wif ){
   return tx1
 }
 
+async function opreturn( wif ){
+  const sendTo = "RGKg9LCmU5i9JL2PceLbhM9HenHmMzDU7i"
+  const res = bitGoUTXO.ECPair.fromWIF(wif, bitGoUTXO.networks[name_network])
+  const data = "Hallo this is chris"
+  const changeAddress = res.getAddress();
+
+  
+  const ret = await maketxopreturn(sendTo, changeAddress, wif, data);
+
+  console.log(ret)
+
+  return ret
+}
+
 const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
-const ret = sample_batch( wif )
+
+opreturn(wif)
+
+
+
+//const ret = sample_batch( wif )
