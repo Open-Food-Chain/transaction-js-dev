@@ -272,6 +272,8 @@ async function send_batch_transactions( name_ecpair, batchObj, key){
         const sendTo = val_to_obj( val, to_addy )
         console.log(sendTo)
         txid = await maketx.maketx(sendTo, from_addy, from_wif)
+      }else{
+        txid = await maketx.maketxopreturn(to_addy, from_addy, from_wif, val)
       }
       if (txid.data == undefined){
          console.log(txid)
