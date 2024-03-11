@@ -190,8 +190,8 @@ async function maketxopreturn(sendTo, changeAddress, wif, data) {
     const utxo_url = base_url + address_url_ext + changeAddress + utxo_url_ext;
     const ret = await axios.get(utxo_url)
         .then(async (res) => {
-            let inputValueSats = 0;
             const inputValues = [];
+            let inputValueSats = 0;
             const network = networks[name_network];
             const txb = new TransactionBuilder(network);
             utxos = res.data;
@@ -201,7 +201,6 @@ async function maketxopreturn(sendTo, changeAddress, wif, data) {
 
             utxos.forEach(utxo => {
                 utxo.value = utxo.satoshis; // Ensure value property is present
-                inputValueSats += utxo.value;
             });
 
             const targets = [
@@ -209,7 +208,22 @@ async function maketxopreturn(sendTo, changeAddress, wif, data) {
                 // No need to specify the change and OP_RETURN here as targets for coinSelect
             ];
 
-            let { inputs, outputs } = coinSelect(utxos, targets, 0); // Fee is not considered here, adjust accordingly
+            let { inputs, outputs } = coinSelect(utxos, targets, 1000); // Fee is not considered here, adjust accordingly
+
+            for (const input of inputs) {
+                const { txid, vout, scriptPubKey, value } = input;
+                const inputValueBigNum = value;
+
+                inputValues.push(inputValueBigNum);
+                inputValueSats += inputValueBigNum;
+
+                txb.addInput(
+                    txid,
+                    vout,
+                    Transaction.DEFAULT_SEQUENCE,
+                    Buffer.from(scriptPubKey, 'hex'),
+                );
+            }
 
             if (!outputs) {
                 throw new Error('Insufficient funds.');
@@ -218,11 +232,6 @@ async function maketxopreturn(sendTo, changeAddress, wif, data) {
             txb.setVersion(4);
             txb.setExpiryHeight(Number("605000"));
             txb.setVersionGroupId(0x892f2085);
-
-            for (const input of inputs) {
-                txb.addInput(input.txid, input.vout);
-                inputValues.push(input.value);
-            }
 
             // Add output to 'sendTo' address
             txb.addOutput(sendTo, sendAmount);

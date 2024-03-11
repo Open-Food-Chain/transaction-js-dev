@@ -109,6 +109,11 @@ async function opreturn( wif ){
 
 const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
 
+//const test = sample_batch(wif);
+
+//console.log(test)
+
+
 opreturn(wif)
 
 

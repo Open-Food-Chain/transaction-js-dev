@@ -16,17 +16,6 @@ const min_utxos = appConfig.batch.min_utxos;
 // Retrieve network name from the config file
 const name_network = appConfig.networks.name;
 
-/*const agent = new https.Agent({  
-  rejectUnauthorized: false
-});
-*/
-
-
-// const agent = new https.Agent({  
-//  rejectUnauthorized: false
-// });
-
-
 
 /**
  * Generates a string from the given name.
@@ -233,7 +222,7 @@ function get_sat_value( value ){
       return value
    }else if (cat == 2){
       //console.log("string")
-      value = convertStringToSats( value  )
+      //value = convertStringToSats( value  )
       //console.log(value)
       return value
    }
@@ -278,12 +267,12 @@ async function send_batch_transactions( name_ecpair, batchObj, key){
       const from_wif = name_ecpair[key].keyPair.toWIF()
 
       const val = get_sat_value( batchObj[key] )
-      const sendTo = val_to_obj( val, to_addy )
-
       
-
-      console.log(sendTo)
-      txid = await maketx.maketx(sendTo, from_addy, from_wif)
+      if ( typeof val != typeof "test" ){
+        const sendTo = val_to_obj( val, to_addy )
+        console.log(sendTo)
+        txid = await maketx.maketx(sendTo, from_addy, from_wif)
+      }
       if (txid.data == undefined){
          console.log(txid)
          all_tx.push(key)
@@ -321,32 +310,16 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
     const addr = name_ecpair[element].getAddress()
 
     const utxos = await getUtxos(addr)
-        if ( utxos.data.length < min_utxos ){
+    if ( utxos.data.length < min_utxos ){
+      const sendTo = [{ [addr]: 100 }];
+      const txid = await maketx.maketx(sendTo, baseAddy, baseWIF);
 
-          const sendTo = [{ [addr]: 100 }];
-          const txid = await maketx.maketx(sendTo, baseAddy, baseWIF);
-   
-          if (txid == undefined) {
-            all_tx.push(name_ecpair[element].getAddress());
-          } else {
-            all_tx.push(txid.data);
-          }
-        }
-   
-
-    /*const utxos = getUtxos(addr)
-  
-    console.log(utxos)
-
-    const sendTo = [ { [addr]:100 } ]
-    console.log(`base: ${baseAddy}`)
-
-    txid = await maketx.maketx(sendTo, baseAddy, baseWIF)
-    if (txid == undefined) {
-        all_tx.push(name_ecpair[element].getAddress())
-    }else{   
+      if (txid == undefined) {
+        all_tx.push(name_ecpair[element].getAddress());
+      } else {
         all_tx.push(txid.data);
-    }*/
+      }
+    }
   }
 
   return all_tx
