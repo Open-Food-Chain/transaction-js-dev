@@ -11,6 +11,38 @@ const { maketx, maketxopreturn } = require('./maketx')
 
 const name_network = appConfig.networks.name;
 
+const test_recursive = {
+    user: {
+        id: { value: 1, unique: true, },
+        name: "John Doe",
+        email: "johndoe@example.com",
+        preferences: {
+            theme: "dark",
+            notifications: {
+                email: true,
+                sms: false,
+                push: {
+                    enabled: true,
+                    frequency: "daily"
+                }
+            }
+        },
+        friends: [
+            {
+                id: 2,
+                name: "Jane Smith",
+                status: "online"
+            },
+            {
+                id: 3,
+                name: "Bob Johnson",
+                status: "offline",
+                lastOnline: "2023-03-08T12:00:00Z"
+            }
+        ]
+    }
+};
+
 const test_batch = {
         "id": "b6c23100-bb41-4477-b0a5-f72e8504c9fb",
         "anfp": "11000011",
@@ -57,7 +89,10 @@ function createRandomJSON() {
     "id": generateRandomString(36),
     "anfp": String(Math.floor(Math.random() * 100000000)),
     "dfp": generateRandomString(16),
-    "bnfp": String(Math.floor(Math.random() * 1000000)),
+    "bnfp": {
+      "value": String(Math.floor(Math.random() * 1000000)),
+      "unique": true,
+     },
     "pds": generateRandomDate(),
     "pde": generateRandomDate(),
     "jds": String(Math.floor(Math.random() * 10)),
@@ -75,6 +110,54 @@ function createRandomJSON() {
     "percentage": Math.random() > 0.5 ? null : String(Math.floor(Math.random() * 100))
   };
 }
+
+function getUnique(jsonObject) {
+    let returnVal = null; // Placeholder for the unique key
+    
+    function searchUnique(obj) {
+        for (let key in obj) {
+            // If the unique key is found, no need to continue searching
+            if (returnVal !== null) break;
+            
+            // Check if current property is an object and recurse
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                // If the object contains the 'unique' key with a value of true, record the key
+                if (obj[key].hasOwnProperty('unique') && obj[key].unique === true) {
+                    returnVal = obj[key].value;
+                    break; // Stop searching further since we found the unique key
+                } else {
+                    // Continue searching within the nested object
+                    searchUnique(obj[key]);
+                }
+            }
+        }
+    }
+
+    searchUnique(jsonObject); // Start the search
+    return returnVal; // Return the found key, or null if not found
+}
+
+function isNested(jsonObject) {
+    // Check if a value is an object and not null
+    const isObject = (value) => typeof value === 'object' && value !== null;
+
+    for (let key in jsonObject) {
+        if (isObject(jsonObject[key])) {
+            // If the property is an array, check if any of its elements is an object
+            if (Array.isArray(jsonObject[key])) {
+                for (let item of jsonObject[key]) {
+                    if (isObject(item)) {
+                        return true; // Found a nested object within the array
+                    }
+                }
+            } else {
+                return true; // Found a nested object
+            }
+        }
+    }
+    return false; // No nested objects found
+}
+
 
 async function sample_batch( wif ){
   //const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
@@ -107,7 +190,35 @@ async function opreturn( wif ){
   return ret
 }
 
+async function opreturnOBJ( wif, json ){
+  const sendTo = "RGKg9LCmU5i9JL2PceLbhM9HenHmMzDU7i"
+  const res = bitGoUTXO.ECPair.fromWIF(wif, bitGoUTXO.networks[name_network])
+  const data = json.toString();
+  const changeAddress = res.getAddress();
+
+  
+  const ret = await maketxopreturn(sendTo, changeAddress, wif, data);
+
+  console.log(ret)
+
+  return ret
+}
+
 const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
+
+//const testJSON = createRandomJSON();
+// console.log(test_recursive)
+
+//const ret = opreturnOBJ(wif, test_recursive)
+//console.log(ret)
+
+//const ret = getUnique(test_recursive)
+//console.log(ret)
+
+//const nest = isNested(test_recursive)
+//console.log(nest)
+
+
 
 const test = sample_batch(wif);
 

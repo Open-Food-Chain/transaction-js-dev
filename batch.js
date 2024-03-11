@@ -17,6 +17,11 @@ const min_utxos = appConfig.batch.min_utxos;
 const name_network = appConfig.networks.name;
 
 
+/*
+TODO: remove the unique key and replace the value with the value
+
+*/
+
 /**
  * Generates a string from the given name.
  * The string consists of the JSON representation of an object containing the name, 
@@ -133,6 +138,53 @@ function get_all_wallets( wallet, keypair){
     return name_and_seed
 }
 
+function isNested(jsonObject) {
+    // Check if a value is an object and not null
+    const isObject = (value) => typeof value === 'object' && value !== null;
+
+    for (let key in jsonObject) {
+        if (isObject(jsonObject[key])) {
+            // If the property is an array, check if any of its elements is an object
+            if (Array.isArray(jsonObject[key])) {
+                for (let item of jsonObject[key]) {
+                    if (isObject(item)) {
+                        return true; // Found a nested object within the array
+                    }
+                }
+            } else {
+                return true; // Found a nested object
+            }
+        }
+    }
+    return false; // No nested objects found
+}
+
+function get_batch_address_value( jsonObject ){
+    let returnVal = null; // Placeholder for the unique key
+    
+    function searchUnique(obj) {
+        for (let key in obj) {
+            // If the unique key is found, no need to continue searching
+            if (returnVal !== null) break;
+            
+            // Check if current property is an object and recurse
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                // If the object contains the 'unique' key with a value of true, record the key
+                if (obj[key].hasOwnProperty('unique') && obj[key].unique === true) {
+                    returnVal = obj[key].value;
+                    break; // Stop searching further since we found the unique key
+                } else {
+                    // Continue searching within the nested object
+                    searchUnique(obj[key]);
+                }
+            }
+        }
+    }
+
+    searchUnique(jsonObject); // Start the search
+    return returnVal; // Return the found key, or null if not found
+}
+
 /**
  * Generates an address for a batch transaction.
  * 
@@ -140,8 +192,20 @@ function get_all_wallets( wallet, keypair){
  * @param {Object} key - The key to sign the seed
  * @returns {string} - The generated address
  */
-function create_batch_address( bnfp, key ){
+function create_batch_address( obj, key ){
+
+   let bnfp = get_batch_address_value(obj)
+
+   if (typeof bnfp != typeof "test"){
+    bnfp = bnfp.toString()
+   }
+
+   console.log(bnfp)
+
    const wallet = generate_seed_offline_wallet( bnfp, key )
+
+   console.log(wallet)
+
    const pair = bitGoUTXO.HDNode.fromSeedBuffer(wallet, bitGoUTXO.networks[name_network]);
    const addy = pair.getAddress()
    return addy
@@ -245,6 +309,7 @@ function val_to_obj( value, to_addy ){
 }
 
 
+
 /**
  * Sends batch transactions to multiple addresses.
  * 
@@ -254,35 +319,54 @@ function val_to_obj( value, to_addy ){
  * @returns {Array} - An array containing transaction IDs or error information
  */
 async function send_batch_transactions( name_ecpair, batchObj, key){
-   const to_addy = create_batch_address( batchObj['bnfp'], key)
-   filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
-   batchObj = remove_keys_from_json_object(batchObj, filter)
-   name_ecpair = remove_keys_from_json_object(name_ecpair, filter)
 
-   var all_tx = []
+    const to_addy = create_batch_address( batchObj, key)
+    filter = ["id", "raw_json",  "integrity_details", "created_at", "bnfp" ]
+    batchObj = remove_keys_from_json_object(batchObj, filter)
+    name_ecpair = remove_keys_from_json_object(name_ecpair, filter)
 
-   for (const key in batchObj) {
+    var all_tx = []
 
-      const from_addy = name_ecpair[key].getAddress()
-      const from_wif = name_ecpair[key].keyPair.toWIF()
+    if ( !isNested(batchObj) ){
 
-      const val = get_sat_value( batchObj[key] )
-      
-      if ( typeof val != typeof "test" ){
-        const sendTo = val_to_obj( val, to_addy )
-        console.log(sendTo)
-        txid = await maketx.maketx(sendTo, from_addy, from_wif)
-      }else{
-        txid = await maketx.maketxopreturn(to_addy, from_addy, from_wif, val)
-      }
-      if (txid.data == undefined){
-         console.log(txid)
-         all_tx.push(key)
-      }else{
+        for (const key in batchObj) {
 
-         all_tx.push(txid.data)
-      }
-   }
+          const from_addy = name_ecpair[key].getAddress()
+          const from_wif = name_ecpair[key].keyPair.toWIF()
+
+          const val = get_sat_value( batchObj[key] )
+          
+          if ( typeof val != typeof "test" ){
+            const sendTo = val_to_obj( val, to_addy )
+            console.log(sendTo)
+            txid = await maketx.maketx(sendTo, from_addy, from_wif)
+          }else{
+            txid = await maketx.maketxopreturn(to_addy, from_addy, from_wif, val)
+          }
+          if (txid.data == undefined){
+             console.log(txid)
+             all_tx.push(key)
+          }else{
+
+             all_tx.push(txid.data)
+          }
+       }
+    }else{
+        const baseAddy = key.getAddress()
+        const baseWIF = key.toWIF()
+
+        const val = batchObj.toString()
+
+        txid = await maketx.maketxopreturn(to_addy, baseAddy, baseWIF, val)
+
+        if (txid.data == undefined){
+            console.log(txid)
+            all_tx.push(key)
+        }else{
+
+            all_tx.push(txid.data)
+        }
+    }
 
 ///   console.log(key)
       const baseAddy = key.getAddress()
