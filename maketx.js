@@ -122,7 +122,7 @@ async function maketx(sendTo, changeAddress, wif) {
             }
 
             txb.setVersion(4);
-            txb.setExpiryHeight(Number("605000"));
+            txb.setExpiryHeight(Number("1000000"));
             txb.setVersionGroupId(0x892f2085);
 
             for (const input of inputs) {
@@ -230,7 +230,7 @@ async function maketxopreturn(sendTo, changeAddress, wif, data) {
             }
 
             txb.setVersion(4);
-            txb.setExpiryHeight(Number("605000"));
+            txb.setExpiryHeight(Number("1000000"));
             txb.setVersionGroupId(0x892f2085);
 
             // Add output to 'sendTo' address

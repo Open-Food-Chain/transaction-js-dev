@@ -159,6 +159,23 @@ function isNested(jsonObject) {
 }
 
 
+async function test_fund_offline_wallets( wif ){
+  //const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
+
+  const res = bitGoUTXO.ECPair.fromWIF(wif, bitGoUTXO.networks[name_network])
+  
+  const test_batch = createRandomJSON() 
+
+  console.log(`test batch: ${JSON.stringify(test_batch)}`)
+
+  const ec_pairs = get_all_ecpairs( test_batch, res )
+
+  const tx1 = await fund_offline_wallets( ec_pairs, res.getAddress(), wif ) 
+  console.log(`batchtx: ${JSON.stringify(tx1)}`)
+
+  return tx1
+}
+
 async function sample_batch( wif ){
   //const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
 
@@ -220,7 +237,7 @@ const wif = "UvjpBLS27ZhBdCyw2hQNrTksQkLWCEvybf4CiqyC6vJNM3cb6Qio"
 
 
 
-const test = sample_batch(wif);
+const test = test_fund_offline_wallets(wif);
 
 console.log(test)
 

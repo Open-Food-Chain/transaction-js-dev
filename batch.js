@@ -397,7 +397,7 @@ async function fund_offline_wallets( name_ecpair, baseAddy, baseWIF ){
 
     const utxos = await getUtxos(addr)
     if ( utxos.data.length < min_utxos ){
-      const sendTo = [{ [addr]: 100 }];
+      const sendTo = [{ [addr]: 1 }];
       const txid = await maketx.maketx(sendTo, baseAddy, baseWIF);
 
       if (txid == undefined) {
