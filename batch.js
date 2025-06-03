@@ -244,7 +244,7 @@ function create_batch_address( obj, key ){
 
    console.log(bnfp)
 
-   const wallet = generate_seed_offline_wallet( bnfp, key )
+   const wallet = generate_seed_batch_addr( bnfp, key )
 
    console.log(wallet)
 
