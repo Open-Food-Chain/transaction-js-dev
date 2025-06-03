@@ -5,6 +5,8 @@ const maketx = require('./maketx');
 
 const axios = require('axios');
 
+const { sha256 } = require('js-sha256')
+
 const { appConfig } = require('./appConfig');
 const send_url = appConfig.explorer.send_url;
 const base_url = appConfig.explorer.base_url;
@@ -98,6 +100,46 @@ function generate_seed_offline_wallet( str, key ){
 
     return sign
 }
+
+/**
+ * Generates a seed for an offline wallet.
+ * 
+ * @param {string} str - The initial string to use for generating the seed
+ * @param {Object} key - The key for signing to generate the seed
+ * @returns {Buffer} - The generated seed
+ */
+function generate_seed_batch_addr(str) {
+  let myBuffer = Buffer.from(str, 'utf-8')
+
+  if (myBuffer.length > 32) {
+    myBuffer = myBuffer.slice(0, 32)
+  }
+
+  if (myBuffer.length < 32) {
+    const newBuffer = Buffer.alloc(32)
+    myBuffer.copy(newBuffer)
+    myBuffer = newBuffer
+  }
+
+  const hash = sha256.update(myBuffer).digest() // returns Uint8Array
+
+  return hash
+}
+
+/**
+ * returns address of batch wallet
+ * 
+ * @param {string} str - The initial string to use for generating the seed
+ * @returns {string} address - The generated seed
+ */
+function generate_batch_addr(str) {
+    const seed = generate_seed_batch_addr(str)
+    const pair = bitGoUTXO.HDNode.fromSeedBuffer(seed, bitGoUTXO.networks[name_network]);
+    const addy = pair.getAddress()
+
+    return addy
+}
+
 
 /**
  * Generates key pairs for all wallets in the provided object.
@@ -500,4 +542,4 @@ const getUtxos = async ( addr ) => {
 }
 
 
-module.exports = { fund_offline_wallets, send_batch_transactions, get_all_ecpairs };
+module.exports = { fund_offline_wallets, send_batch_transactions, get_all_ecpairs, generate_batch_addr };

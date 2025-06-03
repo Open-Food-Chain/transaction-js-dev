@@ -18,10 +18,7 @@ export declare class SignedSessionObject extends VDXFObject {
         vdxfkey: string;
         system_id: string;
         signing_id: string;
-        signature: {
-            vdxfkey: string;
-            signature: string;
-        };
+        signature: import("../../").VerusIDSignatureJson;
         challenge: {
             session_id: string;
             timestamp_micro: number;

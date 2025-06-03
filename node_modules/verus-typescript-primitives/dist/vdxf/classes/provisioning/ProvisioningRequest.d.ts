@@ -16,10 +16,7 @@ export declare class ProvisioningRequest extends Request {
         system_id: any;
         signing_address: string;
         signing_id: any;
-        signature: {
-            vdxfkey: string;
-            signature: string;
-        };
+        signature: import("../../").VerusIDSignatureJson;
         challenge: {
             vdxfkey: string;
             challenge_id: string;

@@ -8,6 +8,8 @@ export { RequestInterface as LoginConsentRequestInterface } from "./Request";
 export { ResponseInterface as LoginConsentResponseInterface } from "./Response";
 export { SignedSessionObject } from './Web/SignedSessionObject';
 export { SignedSessionObjectData } from './Web/SignedSessionObjectData';
+export { VerusPayInvoiceDetails } from './payment/VerusPayInvoiceDetails';
+export { VerusPayInvoice } from './payment/VerusPayInvoice';
 export { ProvisioningRequest as LoginConsentProvisioningRequest } from "./provisioning/ProvisioningRequest";
 export { ProvisioningChallenge as LoginConsentProvisioningChallenge } from "./provisioning/ProvisioningChallenge";
 export { ProvisioningResponse as LoginConsentProvisioningResponse } from "./provisioning/ProvisioningResponse";

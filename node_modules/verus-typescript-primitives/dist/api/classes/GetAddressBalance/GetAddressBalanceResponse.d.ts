@@ -9,7 +9,7 @@ export declare class GetAddressBalanceResponse extends ApiResponse {
         currencyreceived: {
             [key: string]: number;
         };
-        currencynames: {
+        currencynames?: {
             [key: string]: string;
         };
     };

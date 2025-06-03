@@ -5,11 +5,11 @@ export declare class GetAddressUtxosResponse extends ApiResponse {
         txid: string;
         outputIndex: number;
         script: string;
-        currencyvalues: {
-            [key: string]: number;
+        currencyvalues?: {
+            [key: string]: number | undefined;
         };
-        currencynames: {
-            [key: string]: string;
+        currencynames?: {
+            [key: string]: string | undefined;
         };
         satoshis: number;
         height: number;

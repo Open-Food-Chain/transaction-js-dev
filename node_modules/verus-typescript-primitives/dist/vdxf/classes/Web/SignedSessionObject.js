@@ -19,7 +19,7 @@ class SignedSessionObject extends __1.VDXFObject {
         this.system_id = request.system_id;
         this.signing_id = request.signing_id;
         this.signature = request.signature
-            ? new __1.VerusIDSignature(request.signature, keys_1.LOGIN_CONSENT_REQUEST_SIG_VDXF_KEY)
+            ? new __1.VerusIDSignature(request.signature, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY)
             : undefined;
         this.data = new SignedSessionObjectData_1.SignedSessionObjectData(request.data);
     }
@@ -59,7 +59,7 @@ class SignedSessionObject extends __1.VDXFObject {
         const _signing_id = Hash160_1.Hash160.fromAddress(signer);
         const _signature = this.signature
             ? this.signature
-            : new __1.VerusIDSignature({ signature: "" }, keys_1.LOGIN_CONSENT_REQUEST_SIG_VDXF_KEY);
+            : new __1.VerusIDSignature({ signature: "" }, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY);
         const _system_id = Hash160_1.Hash160.fromAddress(this.system_id);
         length += _system_id.byteLength();
         length += _signing_id.byteLength();
@@ -72,7 +72,7 @@ class SignedSessionObject extends __1.VDXFObject {
         const _signing_id = Hash160_1.Hash160.fromAddress(signer);
         const _signature = this.signature
             ? this.signature
-            : new __1.VerusIDSignature({ signature: "" }, keys_1.LOGIN_CONSENT_REQUEST_SIG_VDXF_KEY);
+            : new __1.VerusIDSignature({ signature: "" }, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY);
         const _system_id = Hash160_1.Hash160.fromAddress(this.system_id);
         writer.writeSlice(_system_id.toBuffer());
         writer.writeSlice(_signing_id.toBuffer());
@@ -120,7 +120,7 @@ class SignedSessionObject extends __1.VDXFObject {
         return new SignedSessionObject({
             system_id,
             signing_id,
-            signature: new __1.VerusIDSignature({ signature: headers['VerusID-Signature'] }, keys_1.LOGIN_CONSENT_REQUEST_SIG_VDXF_KEY),
+            signature: new __1.VerusIDSignature({ signature: headers['VerusID-Signature'] }, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY),
             data: new SignedSessionObjectData_1.SignedSessionObjectData({
                 session_id: headers['VerusID-Session-ID'],
                 timestamp_micro: Number(headers['VerusID-Timestamp-Micro']),

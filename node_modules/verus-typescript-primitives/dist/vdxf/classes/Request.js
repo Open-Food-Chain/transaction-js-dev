@@ -20,7 +20,7 @@ class Request extends __1.VDXFObject {
         this.system_id = request.system_id;
         this.signing_id = request.signing_id;
         this.signature = request.signature
-            ? new __1.VerusIDSignature(request.signature, keys_1.LOGIN_CONSENT_REQUEST_SIG_VDXF_KEY)
+            ? new __1.VerusIDSignature(request.signature, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY)
             : undefined;
         this.challenge = new Challenge_1.Challenge(request.challenge);
     }
@@ -60,7 +60,7 @@ class Request extends __1.VDXFObject {
         const _signing_id = Hash160_1.Hash160.fromAddress(signer);
         const _signature = this.signature
             ? this.signature
-            : new __1.VerusIDSignature({ signature: "" }, keys_1.LOGIN_CONSENT_REQUEST_SIG_VDXF_KEY);
+            : new __1.VerusIDSignature({ signature: "" }, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY);
         if (this.vdxfkey === __1.LOGIN_CONSENT_REQUEST_VDXF_KEY.vdxfid) {
             const _system_id = Hash160_1.Hash160.fromAddress(this.system_id);
             length += _system_id.byteLength();
@@ -75,7 +75,7 @@ class Request extends __1.VDXFObject {
         const _signing_id = Hash160_1.Hash160.fromAddress(signer);
         const _signature = this.signature
             ? this.signature
-            : new __1.VerusIDSignature({ signature: "" }, keys_1.LOGIN_CONSENT_REQUEST_SIG_VDXF_KEY);
+            : new __1.VerusIDSignature({ signature: "" }, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY);
         if (this.vdxfkey === __1.LOGIN_CONSENT_REQUEST_VDXF_KEY.vdxfid) {
             const _system_id = Hash160_1.Hash160.fromAddress(this.system_id);
             writer.writeSlice(_system_id.toBuffer());
@@ -127,6 +127,16 @@ class Request extends __1.VDXFObject {
         const split = uri.split(`${__1.LOGIN_CONSENT_REQUEST_VDXF_KEY.vdxfid}=`);
         const req = new Request();
         req.fromBuffer(base64url_1.default.toBuffer(split[1]));
+        return req;
+    }
+    toQrString() {
+        if (this.signature == null)
+            throw new Error("Request must be signed before it can be used as a deep link");
+        return this.toString(true);
+    }
+    static fromQrString(qrstring) {
+        const req = new Request();
+        req.fromBuffer(base64url_1.default.toBuffer(qrstring));
         return req;
     }
 }

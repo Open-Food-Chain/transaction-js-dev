@@ -36,10 +36,7 @@ export declare class Response extends VDXFObject {
                 vdxfkey: string;
                 system_id: string;
                 signing_id: string;
-                signature: {
-                    vdxfkey: string;
-                    signature: string;
-                };
+                signature: import("../").VerusIDSignatureJson;
                 challenge: {
                     vdxfkey: string;
                     challenge_id: string;

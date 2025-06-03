@@ -1,20 +1,8 @@
 import { ApiRequest } from "../../ApiRequest";
 import { ApiPrimitiveJson, RequestParams } from "../../ApiPrimitive";
 declare type Utxo = {
-    address: string;
+    voutnum: number;
     txid: string;
-    outputIndex: number;
-    script: string;
-    currencyvalues?: {
-        [key: string]: number;
-    };
-    currencynames?: {
-        [key: string]: string;
-    };
-    satoshis: number;
-    height: number;
-    isspendable: number;
-    blocktime: number;
 };
 export declare class FundRawTransactionRequest extends ApiRequest {
     txhex: string;

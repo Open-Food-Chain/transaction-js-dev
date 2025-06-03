@@ -1,7 +1,8 @@
 /// <reference types="bn.js" />
 /// <reference types="node" />
 import { BigNumber } from '../utils/types/BigNumber';
-export declare class CurrencyValueMap {
+import { SerializableEntity } from '../utils/types/SerializableEntity';
+export declare class CurrencyValueMap implements SerializableEntity {
     value_map: Map<string, BigNumber>;
     multivalue: boolean;
     constructor(data?: {
@@ -11,5 +12,5 @@ export declare class CurrencyValueMap {
     getNumValues(): import("bn.js");
     getByteLength(): number;
     toBuffer(): Buffer;
-    fromBuffer(buffer: any, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number): number;
 }

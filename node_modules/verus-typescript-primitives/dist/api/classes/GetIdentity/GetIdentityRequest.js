@@ -21,7 +21,7 @@ class GetIdentityRequest extends ApiRequest_1.ApiRequest {
         return params.filter((x) => x != null);
     }
     static fromJson(object) {
-        return new GetIdentityRequest(object.chain, object.nameOrAddress, object.height != null ? object.height : undefined, object.txproof != null ? object.txproof : undefined, object.txproofheight != null ? object.txproof : undefined);
+        return new GetIdentityRequest(object.chain, object.nameOrAddress, object.height != null ? object.height : undefined, object.txproof != null ? object.txproof : undefined, object.txproofheight != null ? object.txproofheight : undefined);
     }
     toJson() {
         return {
